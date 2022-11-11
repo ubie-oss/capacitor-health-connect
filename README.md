@@ -14,6 +14,7 @@ npx cap sync
 <docgen-index>
 
 * [`echo(...)`](#echo)
+* [`insertRecords(...)`](#insertrecords)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [Type Aliases](#type-aliases)
 
@@ -37,6 +38,21 @@ echo(options: { value: string; }) => any
 --------------------
 
 
+### insertRecords(...)
+
+```typescript
+insertRecords(options: { records: Record[]; }) => any
+```
+
+| Param         | Type                          |
+| ------------- | ----------------------------- |
+| **`options`** | <code>{ records: {}; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
 ### requestHealthPermissions(...)
 
 ```typescript
@@ -53,6 +69,16 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 
 
 ### Type Aliases
+
+
+#### Record
+
+<code>{ type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; }</code>
+
+
+#### Mass
+
+<code>{ unit: 'gram' | 'kilogram' | 'milligram' | 'microgram' | 'ounce' | 'pound'; value: number; }</code>
 
 
 #### RecordType

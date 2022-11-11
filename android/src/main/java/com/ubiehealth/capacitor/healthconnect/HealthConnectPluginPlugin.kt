@@ -6,8 +6,12 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.units.Mass
 import androidx.health.platform.client.proto.PermissionProto
+import androidx.lifecycle.lifecycleScope
 import com.getcapacitor.JSArray
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
@@ -15,7 +19,11 @@ import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
-import kotlin.reflect.KClass
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 @CapacitorPlugin(name = "HealthConnectPlugin")
 class HealthConnectPluginPlugin : Plugin() {
@@ -31,6 +39,19 @@ class HealthConnectPluginPlugin : Plugin() {
         val ret = JSObject()
         ret.put("value", implementation.echo(value!!))
         call.resolve(ret)
+    }
+
+    @PluginMethod
+    fun insertRecords(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            val records = call.getArray("records").toList<JSONObject>().map { it.toRecord() }
+            val result = healthConnectClient.insertRecords(records)
+
+            val res = JSObject().apply {
+                put("recordIds", result.recordIdsList)
+            }
+            call.resolve(res)
+        }
     }
 
     @PluginMethod
@@ -89,4 +110,48 @@ fun <T> List<T>.toJSArray(): JSArray {
     }
 
     return jsArray
+}
+
+fun JSONObject.toRecord(): Record {
+    return when (val type = this.get("type")) {
+        "Weight" -> WeightRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            weight = this.getMass("weight"),
+        )
+        "Steps" -> StepsRecord(
+            startTime = this.getInstant("startTime"),
+            startZoneOffset = this.getZoneOffsetOrNull("startZoneOffset"),
+            endTime = this.getInstant("endTime"),
+            endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
+            count = this.getLong("count"),
+        )
+        else -> throw IllegalArgumentException("Unexpected record type: $type")
+    }
+}
+
+fun JSONObject.getInstant(name: String): Instant {
+    return Instant.parse(this.getString(name))
+}
+
+fun JSONObject.getZoneOffsetOrNull(name: String): ZoneOffset? {
+    return if (this.has(name))
+        ZoneId.of(this.getString(name)).rules.getOffset(Instant.EPOCH)
+    else
+        null
+}
+
+fun JSONObject.getMass(name: String): Mass {
+    val obj = requireNotNull(this.getJSONObject(name))
+    val unit = obj.getString("unit")
+    val value = obj.getDouble("value")
+    return when (unit) {
+        "gram" -> Mass.grams(value)
+        "kilogram" -> Mass.kilograms(value)
+        "milligram" -> Mass.milligrams(value)
+        "microgram" -> Mass.micrograms(value)
+        "ounce" -> Mass.ounces(value)
+        "pound" -> Mass.pounds(value)
+        else -> throw IllegalArgumentException("Unexpected mass unit: $unit")
+    }
 }

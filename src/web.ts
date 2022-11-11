@@ -6,6 +6,9 @@ export class HealthConnectPluginWeb
   extends WebPlugin
   implements HealthConnectPluginPlugin
 {
+  insertRecords(): Promise<{ recordIds: string[] }> {
+    throw new Error('Method not implemented.');
+  }
   requestHealthPermissions(): Promise<{
     grantedPermissions: { read: RecordType[]; write: RecordType[] };
     hasAllPermissions: boolean;
