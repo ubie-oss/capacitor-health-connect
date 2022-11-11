@@ -15,6 +15,7 @@ npx cap sync
 
 * [`echo(...)`](#echo)
 * [`insertRecords(...)`](#insertrecords)
+* [`readRecords(...)`](#readrecords)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [Type Aliases](#type-aliases)
 
@@ -53,6 +54,21 @@ insertRecords(options: { records: Record[]; }) => any
 --------------------
 
 
+### readRecords(...)
+
+```typescript
+readRecords(options: { type: RecordType; timeRangeFilter: TimeRangeFilter; dataOriginFilter?: string[]; ascendingOrder?: boolean; pageSize?: number; pageToken?: string; }) => any
+```
+
+| Param         | Type                                                                                                                                                                                                                  |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ type: <a href="#recordtype">RecordType</a>; timeRangeFilter: <a href="#timerangefilter">TimeRangeFilter</a>; dataOriginFilter?: {}; ascendingOrder?: boolean; pageSize?: number; pageToken?: string; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
 ### requestHealthPermissions(...)
 
 ```typescript
@@ -84,5 +100,10 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 #### RecordType
 
 <code>'Weight' | 'Steps'</code>
+
+
+#### TimeRangeFilter
+
+<code>{ type: 'before' | 'after'; time: Date; } | { type: 'between'; startTime: Date; endTime: Date; }</code>
 
 </docgen-api>

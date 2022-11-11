@@ -9,6 +9,9 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.request.ReadRecordsRequest
+import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Mass
 import androidx.health.platform.client.proto.PermissionProto
 import androidx.lifecycle.lifecycleScope
@@ -49,6 +52,31 @@ class HealthConnectPluginPlugin : Plugin() {
 
             val res = JSObject().apply {
                 put("recordIds", result.recordIdsList)
+            }
+            call.resolve(res)
+        }
+    }
+
+    @PluginMethod
+    fun readRecords(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            val type = call.getString("type").let {
+                RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+            }
+            val request = ReadRecordsRequest(
+                    recordType = type,
+                    timeRangeFilter = call.data.getTimeRangeFilter("timeRangeFilter"),
+                    dataOriginFilter = call.getArray("dataOriginFilter")?.toList<String>()?.map { DataOrigin(it) }?.toSet() ?: emptySet(),
+                    ascendingOrder = call.getBoolean("ascendingOrder") ?: true,
+                    pageSize = call.getInt("pageSize") ?: 1000,
+                    pageToken = call.getString("pageToken"),
+            )
+            val result = healthConnectClient.readRecords(request)
+
+            val res = JSObject().apply {
+                val records = result.records.map { it.toJSONObject() }.toJSArray()
+                this.put("records", records)
+                this.put("pageToken", result.pageToken)
             }
             call.resolve(res)
         }
@@ -130,15 +158,37 @@ fun JSONObject.toRecord(): Record {
     }
 }
 
+fun Record.toJSONObject(): JSONObject {
+    return when (this) {
+        is WeightRecord -> JSONObject().also { obj ->
+            obj.put("time", this.time)
+            obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+            obj.put("weight", this.weight.toJSONObject())
+        }
+        is StepsRecord -> JSONObject().also { obj ->
+            obj.put("startTime", this.startTime)
+            obj.put("startZoneOffset", this.startZoneOffset?.toJSONValue())
+            obj.put("endTime", this.endTime)
+            obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
+            obj.put("count", this.count)
+        }
+        else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
+    }
+}
+
 fun JSONObject.getInstant(name: String): Instant {
     return Instant.parse(this.getString(name))
 }
 
 fun JSONObject.getZoneOffsetOrNull(name: String): ZoneOffset? {
     return if (this.has(name))
-        ZoneId.of(this.getString(name)).rules.getOffset(Instant.EPOCH)
+        ZoneOffset.of(this.getString(name))
     else
         null
+}
+
+fun ZoneOffset.toJSONValue(): String {
+    return this.id
 }
 
 fun JSONObject.getMass(name: String): Mass {
@@ -153,5 +203,23 @@ fun JSONObject.getMass(name: String): Mass {
         "ounce" -> Mass.ounces(value)
         "pound" -> Mass.pounds(value)
         else -> throw IllegalArgumentException("Unexpected mass unit: $unit")
+    }
+}
+
+fun Mass.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        // TODO: support other unit
+        obj.put("unit", "gram")
+        obj.put("value", this.inGrams)
+    }
+}
+
+fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
+    val obj = requireNotNull(this.getJSONObject(name))
+    return when (val type = obj.getString("type")) {
+        "before" -> TimeRangeFilter.before(obj.getInstant("time"))
+        "after" -> TimeRangeFilter.after(obj.getInstant("time"))
+        "between" -> TimeRangeFilter.between(obj.getInstant("startTime"), obj.getInstant("endTime"))
+        else -> throw IllegalArgumentException("Unexpected TimeRange type: $type")
     }
 }

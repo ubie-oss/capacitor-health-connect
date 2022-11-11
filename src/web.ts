@@ -1,11 +1,21 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { HealthConnectPluginPlugin, RecordType } from './definitions';
+import type {
+  HealthConnectPluginPlugin,
+  Record,
+  RecordType,
+} from './definitions';
 
 export class HealthConnectPluginWeb
   extends WebPlugin
   implements HealthConnectPluginPlugin
 {
+  readRecords(): Promise<{
+    records: Record[];
+    pageToken?: string | undefined;
+  }> {
+    throw new Error('Method not implemented.');
+  }
   insertRecords(): Promise<{ recordIds: string[] }> {
     throw new Error('Method not implemented.');
   }

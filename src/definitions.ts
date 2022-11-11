@@ -3,6 +3,17 @@ export interface HealthConnectPluginPlugin {
   insertRecords(options: {
     records: Record[];
   }): Promise<{ recordIds: string[] }>;
+  readRecords(options: {
+    type: RecordType;
+    timeRangeFilter: TimeRangeFilter;
+    dataOriginFilter?: string[];
+    ascendingOrder?: boolean;
+    pageSize?: number;
+    pageToken?: string;
+  }): Promise<{
+    records: Record[];
+    pageToken?: string;
+  }>;
   requestHealthPermissions(options: {
     read: RecordType[];
     write: RecordType[];
@@ -31,6 +42,17 @@ export type Record =
       endTime: Date;
       endZoneOffset?: string;
       count: number;
+    };
+
+export type TimeRangeFilter =
+  | {
+      type: 'before' | 'after';
+      time: Date;
+    }
+  | {
+      type: 'between';
+      startTime: Date;
+      endTime: Date;
     };
 
 export type Mass = {
