@@ -1,22 +1,19 @@
-package com.ubiehealth.capacitor.healthconnect;
+package com.ubiehealth.capacitor.healthconnect
 
-import com.getcapacitor.JSObject;
-import com.getcapacitor.Plugin;
-import com.getcapacitor.PluginCall;
-import com.getcapacitor.PluginMethod;
-import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.JSObject
+import com.getcapacitor.Plugin
+import com.getcapacitor.PluginCall
+import com.getcapacitor.PluginMethod
+import com.getcapacitor.annotation.CapacitorPlugin
 
 @CapacitorPlugin(name = "HealthConnectPlugin")
-public class HealthConnectPluginPlugin extends Plugin {
-
-    private HealthConnectPlugin implementation = new HealthConnectPlugin();
-
+class HealthConnectPluginPlugin : Plugin() {
+    private val implementation = HealthConnectPlugin()
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
-        JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
-        call.resolve(ret);
+    fun echo(call: PluginCall) {
+        val value = call.getString("value")
+        val ret = JSObject()
+        ret.put("value", implementation.echo(value!!))
+        call.resolve(ret)
     }
 }
