@@ -60,5 +60,9 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
 
     implementation "androidx.core:core-ktx:1.9.0"
+    implementation 'androidx.activity:activity-ktx:1.6.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // TODO: version variable
+    implementation "androidx.health.connect:connect-client:1.0.0-alpha07"
 }
