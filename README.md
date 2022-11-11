@@ -14,7 +14,8 @@ npx cap sync
 <docgen-index>
 
 * [`echo(...)`](#echo)
-* [`requestPermission()`](#requestpermission)
+* [`requestHealthPermissions(...)`](#requesthealthpermissions)
+* [Type Aliases](#type-aliases)
 
 </docgen-index>
 
@@ -36,14 +37,26 @@ echo(options: { value: string; }) => any
 --------------------
 
 
-### requestPermission()
+### requestHealthPermissions(...)
 
 ```typescript
-requestPermission() => any
+requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) => any
 ```
+
+| Param         | Type                                  |
+| ------------- | ------------------------------------- |
+| **`options`** | <code>{ read: {}; write: {}; }</code> |
 
 **Returns:** <code>any</code>
 
 --------------------
+
+
+### Type Aliases
+
+
+#### RecordType
+
+<code>'Weight' | 'Steps'</code>
 
 </docgen-api>
