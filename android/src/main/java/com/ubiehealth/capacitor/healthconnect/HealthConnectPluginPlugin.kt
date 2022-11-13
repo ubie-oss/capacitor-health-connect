@@ -58,6 +58,25 @@ class HealthConnectPluginPlugin : Plugin() {
     }
 
     @PluginMethod
+    fun readRecord(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            val type = call.getString("type").let {
+                RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+            }
+
+            val result = healthConnectClient.readRecord(
+                    recordType = type,
+                    recordId = requireNotNull(call.getString("recordId"))
+            )
+
+            val res = JSObject().apply {
+                this.put("record", result.record.toJSONObject())
+            }
+            call.resolve(res)
+        }
+    }
+
+    @PluginMethod
     fun readRecords(call: PluginCall) {
         this.activity.lifecycleScope.launch {
             val type = call.getString("type").let {

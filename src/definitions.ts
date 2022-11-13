@@ -3,6 +3,9 @@ export interface HealthConnectPluginPlugin {
   insertRecords(options: {
     records: Record[];
   }): Promise<{ recordIds: string[] }>;
+  readRecord(options: { type: RecordType; recordId: string }): Promise<{
+    record: Record;
+  }>;
   readRecords(options: {
     type: RecordType;
     timeRangeFilter: TimeRangeFilter;
