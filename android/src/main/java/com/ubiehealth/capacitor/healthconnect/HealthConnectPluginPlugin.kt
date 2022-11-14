@@ -1,5 +1,6 @@
 package com.ubiehealth.capacitor.healthconnect
 
+import android.os.Build
 import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
@@ -42,6 +43,20 @@ class HealthConnectPluginPlugin : Plugin() {
         val ret = JSObject()
         ret.put("value", implementation.echo(value!!))
         call.resolve(ret)
+    }
+
+    @PluginMethod
+    fun checkAvailability(call: PluginCall) {
+        val availability = when {
+            HealthConnectClient.isAvailable(this.context) -> "Available"
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 -> "NotInstalled"
+            else -> "NotSupported"
+        }
+
+        val res = JSObject().apply {
+            put("availability", availability)
+        }
+        call.resolve(res)
     }
 
     @PluginMethod

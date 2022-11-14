@@ -1,5 +1,6 @@
 export interface HealthConnectPluginPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
+  checkAvailability(): Promise<{ availability: HealthConnectAvailability }>;
   insertRecords(options: {
     records: Record[];
   }): Promise<{ recordIds: string[] }>;
@@ -28,6 +29,11 @@ export interface HealthConnectPluginPlugin {
     hasAllPermissions: boolean;
   }>;
 }
+
+export type HealthConnectAvailability =
+  | 'Available'
+  | 'NotInstalled'
+  | 'NotSupported';
 
 export type RecordType = 'Weight' | 'Steps';
 

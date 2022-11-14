@@ -1,6 +1,7 @@
 import { WebPlugin } from '@capacitor/core';
 
 import type {
+  HealthConnectAvailability,
   HealthConnectPluginPlugin,
   Record,
   RecordType,
@@ -10,6 +11,12 @@ export class HealthConnectPluginWeb
   extends WebPlugin
   implements HealthConnectPluginPlugin
 {
+  checkAvailability(): Promise<{ availability: HealthConnectAvailability }> {
+    throw new Error('Method not implemented.');
+  }
+  readRecord(): Promise<{ record: Record }> {
+    throw new Error('Method not implemented.');
+  }
   readRecords(): Promise<{
     records: Record[];
     pageToken?: string | undefined;
