@@ -18,6 +18,9 @@ export interface HealthConnectPlugin {
     pageToken?: string;
   }>;
   getChangesToken(options: { types: RecordType[] }): Promise<{ token: string }>;
+  getChanges(options: {
+    token: string;
+  }): Promise<{ changes: Change[]; nextToken: string }>;
   requestHealthPermissions(options: {
     read: RecordType[];
     write: RecordType[];
@@ -65,6 +68,16 @@ export type RecordMetadata = {
   lastModifiedTime: Date;
   dataOrigin: string;
 };
+
+export type Change =
+  | {
+      type: 'Upsert';
+      record: Record;
+    }
+  | {
+      type: 'Delete';
+      recordId: string;
+    };
 
 export type TimeRangeFilter =
   | {

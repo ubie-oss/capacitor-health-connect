@@ -4,6 +4,9 @@ import android.os.Build
 import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.changes.Change
+import androidx.health.connect.client.changes.DeletionChange
+import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
@@ -26,6 +29,10 @@ import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
+import kotlinx.coroutines.flow.flatMap
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -125,6 +132,28 @@ class HealthConnectPlugin : Plugin() {
 
             val res = JSObject().apply {
                 this.put("token", token)
+            }
+            call.resolve(res)
+        }
+    }
+
+    @PluginMethod
+    fun getChanges(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            var token = requireNotNull(call.getString("token"))
+            val changes = flow {
+                do {
+                    val result = healthConnectClient.getChanges(
+                            changesToken = token,
+                    )
+                    emit(result.changes)
+                    token = result.nextChangesToken
+                } while (result.hasMore)
+            }.toList().flatten()
+
+            val res = JSObject().apply {
+                put("changes", changes.map { it.toJSObject() }.toJSArray())
+                put("nextToken", token)
             }
             call.resolve(res)
         }
@@ -236,6 +265,21 @@ fun Metadata.toJSONObject(): JSONObject {
         obj.put("clientRecordVersion", this.clientRecordVersion)
         obj.put("lastModifiedTime", this.lastModifiedTime)
         obj.put("dataOrigin", this.dataOrigin.packageName)
+    }
+}
+
+fun Change.toJSObject(): JSObject {
+    return JSObject().also { obj ->
+        when (this) {
+            is UpsertionChange -> {
+                obj.put("type", "Upsert")
+                obj.put("record", this.record.toJSONObject())
+            }
+            is DeletionChange -> {
+                obj.put("type", "Delete")
+                obj.put("recordId", this.recordId)
+            }
+        }
     }
 }
 

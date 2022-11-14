@@ -18,6 +18,7 @@ npx cap sync
 * [`readRecord(...)`](#readrecord)
 * [`readRecords(...)`](#readrecords)
 * [`getChangesToken(...)`](#getchangestoken)
+* [`getChanges(...)`](#getchanges)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [Type Aliases](#type-aliases)
 
@@ -97,6 +98,21 @@ getChangesToken(options: { types: RecordType[]; }) => any
 --------------------
 
 
+### getChanges(...)
+
+```typescript
+getChanges(options: { token: string; }) => any
+```
+
+| Param         | Type                            |
+| ------------- | ------------------------------- |
+| **`options`** | <code>{ token: string; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
 ### requestHealthPermissions(...)
 
 ```typescript
@@ -148,5 +164,10 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 #### TimeRangeFilter
 
 <code>{ type: 'before' | 'after'; time: Date; } | { type: 'between'; startTime: Date; endTime: Date; }</code>
+
+
+#### Change
+
+<code>{ type: 'Upsert'; record: <a href="#record">Record</a>; } | { type: 'Delete'; recordId: string; }</code>
 
 </docgen-api>
