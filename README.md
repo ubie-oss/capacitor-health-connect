@@ -14,7 +14,9 @@ npx cap sync
 <docgen-index>
 
 * [`echo(...)`](#echo)
+* [`checkAvailability()`](#checkavailability)
 * [`insertRecords(...)`](#insertrecords)
+* [`readRecord(...)`](#readrecord)
 * [`readRecords(...)`](#readrecords)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [Type Aliases](#type-aliases)
@@ -39,6 +41,17 @@ echo(options: { value: string; }) => any
 --------------------
 
 
+### checkAvailability()
+
+```typescript
+checkAvailability() => any
+```
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
 ### insertRecords(...)
 
 ```typescript
@@ -48,6 +61,21 @@ insertRecords(options: { records: Record[]; }) => any
 | Param         | Type                          |
 | ------------- | ----------------------------- |
 | **`options`** | <code>{ records: {}; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### readRecord(...)
+
+```typescript
+readRecord(options: { type: RecordType; recordId: string; }) => any
+```
+
+| Param         | Type                                                                           |
+| ------------- | ------------------------------------------------------------------------------ |
+| **`options`** | <code>{ type: <a href="#recordtype">RecordType</a>; recordId: string; }</code> |
 
 **Returns:** <code>any</code>
 
@@ -85,6 +113,11 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 
 
 ### Type Aliases
+
+
+#### HealthConnectAvailability
+
+<code>'Available' | 'NotInstalled' | 'NotSupported'</code>
 
 
 #### Record
