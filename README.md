@@ -122,7 +122,17 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 
 #### Record
 
-<code>{ type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; }</code>
+<code><a href="#recordbase">RecordBase</a> & ( | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } )</code>
+
+
+#### RecordBase
+
+<code>{ metadata: <a href="#recordmetadata">RecordMetadata</a>; }</code>
+
+
+#### RecordMetadata
+
+<code>{ id: string; clientRecordId?: string; clientRecordVersion: number; lastModifiedTime: Date; dataOrigin: string; }</code>
 
 
 #### Mass

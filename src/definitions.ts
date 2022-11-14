@@ -37,21 +37,26 @@ export type HealthConnectAvailability =
 
 export type RecordType = 'Weight' | 'Steps';
 
-export type Record =
-  | {
-      type: 'Weight';
-      time: Date;
-      zoneOffset?: string;
-      weight: Mass;
-    }
-  | {
-      type: 'Steps';
-      startTime: Date;
-      startZoneOffset?: string;
-      endTime: Date;
-      endZoneOffset?: string;
-      count: number;
-    };
+type RecordBase = {
+  metadata: RecordMetadata;
+};
+export type Record = RecordBase &
+  (
+    | {
+        type: 'Weight';
+        time: Date;
+        zoneOffset?: string;
+        weight: Mass;
+      }
+    | {
+        type: 'Steps';
+        startTime: Date;
+        startZoneOffset?: string;
+        endTime: Date;
+        endZoneOffset?: string;
+        count: number;
+      }
+  );
 
 export type RecordMetadata = {
   id: string;
