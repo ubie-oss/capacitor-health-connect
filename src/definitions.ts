@@ -1,4 +1,4 @@
-export interface HealthConnectPluginPlugin {
+export interface HealthConnectPlugin {
   checkAvailability(): Promise<{ availability: HealthConnectAvailability }>;
   insertRecords(options: {
     records: Record[];

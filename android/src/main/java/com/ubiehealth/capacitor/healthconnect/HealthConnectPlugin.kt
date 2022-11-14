@@ -26,11 +26,10 @@ import com.getcapacitor.annotation.CapacitorPlugin
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.time.Instant
-import java.time.ZoneId
 import java.time.ZoneOffset
 
-@CapacitorPlugin(name = "HealthConnectPlugin")
-class HealthConnectPluginPlugin : Plugin() {
+@CapacitorPlugin(name = "HealthConnect")
+class HealthConnectPlugin : Plugin() {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(this.context) }
     private val permissionContract by lazy {
         PermissionController.createRequestPermissionResultContract()

@@ -9,8 +9,7 @@
   "files": [
     "android/src/main/",
     "android/build.gradle",
-    "dist/",
-    "CapacitorHealthConnect.podspec"
+    "dist/"
   ],
   "author": "Yuku Kotani",
   "license": "Apache-2.0",
@@ -34,7 +33,7 @@
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
-    "docgen": "docgen --api HealthConnectPluginPlugin --output-readme README.md --output-json dist/docs.json",
+    "docgen": "docgen --api HealthConnectPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
