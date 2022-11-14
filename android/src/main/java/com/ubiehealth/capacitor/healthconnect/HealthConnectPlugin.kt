@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.permission.HealthPermission
@@ -11,6 +12,7 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -29,6 +31,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneOffset
+import java.util.Date
 
 @CapacitorPlugin(name = "HealthConnect")
 class HealthConnectPlugin : Plugin() {
@@ -204,20 +207,35 @@ fun JSONObject.toRecord(): Record {
 }
 
 fun Record.toJSONObject(): JSONObject {
-    return when (this) {
-        is WeightRecord -> JSONObject().also { obj ->
-            obj.put("time", this.time)
-            obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
-            obj.put("weight", this.weight.toJSONObject())
+    return JSONObject().also { obj ->
+        obj.put("type", RECORDS_CLASS_NAME_MAP[this::class])
+        obj.put("metadata", this.metadata.toJSONObject())
+
+        when (this) {
+            is WeightRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("weight", this.weight.toJSONObject())
+            }
+            is StepsRecord -> {
+                obj.put("startTime", this.startTime)
+                obj.put("startZoneOffset", this.startZoneOffset?.toJSONValue())
+                obj.put("endTime", this.endTime)
+                obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
+                obj.put("count", this.count)
+            }
+            else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
         }
-        is StepsRecord -> JSONObject().also { obj ->
-            obj.put("startTime", this.startTime)
-            obj.put("startZoneOffset", this.startZoneOffset?.toJSONValue())
-            obj.put("endTime", this.endTime)
-            obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
-            obj.put("count", this.count)
-        }
-        else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
+    }
+}
+
+fun Metadata.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("id", this.id)
+        obj.put("clientRecordId", this.clientRecordId)
+        obj.put("clientRecordVersion", this.clientRecordVersion)
+        obj.put("lastModifiedTime", this.lastModifiedTime)
+        obj.put("dataOrigin", this.dataOrigin.packageName)
     }
 }
 

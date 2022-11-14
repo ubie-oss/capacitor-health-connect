@@ -1,7 +1,7 @@
 export interface HealthConnectPlugin {
   checkAvailability(): Promise<{ availability: HealthConnectAvailability }>;
   insertRecords(options: {
-    records: Record[];
+    records: Omit<Record, 'metadata'>[];
   }): Promise<{ recordIds: string[] }>;
   readRecord(options: { type: RecordType; recordId: string }): Promise<{
     record: Record;
@@ -52,6 +52,14 @@ export type Record =
       endZoneOffset?: string;
       count: number;
     };
+
+export type RecordMetadata = {
+  id: string;
+  clientRecordId?: string;
+  clientRecordVersion: number;
+  lastModifiedTime: Date;
+  dataOrigin: string;
+};
 
 export type TimeRangeFilter =
   | {

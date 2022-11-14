@@ -40,7 +40,7 @@ checkAvailability() => any
 ### insertRecords(...)
 
 ```typescript
-insertRecords(options: { records: Record[]; }) => any
+insertRecords(options: { records: Omit<Record, 'metadata'>[]; }) => any
 ```
 
 | Param         | Type                          |
