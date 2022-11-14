@@ -17,6 +17,7 @@ export interface HealthConnectPlugin {
     records: Record[];
     pageToken?: string;
   }>;
+  getChangesToken(options: { types: RecordType[] }): Promise<{ token: string }>;
   requestHealthPermissions(options: {
     read: RecordType[];
     write: RecordType[];

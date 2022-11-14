@@ -17,6 +17,7 @@ npx cap sync
 * [`insertRecords(...)`](#insertrecords)
 * [`readRecord(...)`](#readrecord)
 * [`readRecords(...)`](#readrecords)
+* [`getChangesToken(...)`](#getchangestoken)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [Type Aliases](#type-aliases)
 
@@ -75,6 +76,21 @@ readRecords(options: { type: RecordType; timeRangeFilter: TimeRangeFilter; dataO
 | Param         | Type                                                                                                                                                                                                                  |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`options`** | <code>{ type: <a href="#recordtype">RecordType</a>; timeRangeFilter: <a href="#timerangefilter">TimeRangeFilter</a>; dataOriginFilter?: {}; ascendingOrder?: boolean; pageSize?: number; pageToken?: string; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### getChangesToken(...)
+
+```typescript
+getChangesToken(options: { types: RecordType[]; }) => any
+```
+
+| Param         | Type                        |
+| ------------- | --------------------------- |
+| **`options`** | <code>{ types: {}; }</code> |
 
 **Returns:** <code>any</code>
 

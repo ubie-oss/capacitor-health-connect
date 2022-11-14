@@ -11,6 +11,7 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Mass
@@ -24,6 +25,7 @@ import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneOffset
@@ -90,7 +92,7 @@ class HealthConnectPlugin : Plugin() {
             val request = ReadRecordsRequest(
                     recordType = type,
                     timeRangeFilter = call.data.getTimeRangeFilter("timeRangeFilter"),
-                    dataOriginFilter = call.getArray("dataOriginFilter")?.toList<String>()?.map { DataOrigin(it) }?.toSet() ?: emptySet(),
+                    dataOriginFilter = call.data.getDataOriginFilter("dataOriginFilter"),
                     ascendingOrder = call.getBoolean("ascendingOrder") ?: true,
                     pageSize = call.getInt("pageSize") ?: 1000,
                     pageToken = call.getString("pageToken"),
@@ -101,6 +103,25 @@ class HealthConnectPlugin : Plugin() {
                 val records = result.records.map { it.toJSONObject() }.toJSArray()
                 this.put("records", records)
                 this.put("pageToken", result.pageToken)
+            }
+            call.resolve(res)
+        }
+    }
+
+    @PluginMethod
+    fun getChangesToken(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            val types = call.getArray("types").toList<String>().map {
+                RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+            }.toSet()
+            val request = ChangesTokenRequest(
+                    recordTypes = types,
+                    dataOriginFilters = call.data.getDataOriginFilter("dataOriginFilter"),
+            )
+            val token = healthConnectClient.getChangesToken(request)
+
+            val res = JSObject().apply {
+                this.put("token", token)
             }
             call.resolve(res)
         }
@@ -245,5 +266,16 @@ fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
         "after" -> TimeRangeFilter.after(obj.getInstant("time"))
         "between" -> TimeRangeFilter.between(obj.getInstant("startTime"), obj.getInstant("endTime"))
         else -> throw IllegalArgumentException("Unexpected TimeRange type: $type")
+    }
+}
+
+fun JSObject.getDataOriginFilter(name: String): Set<DataOrigin> {
+    return this.optJSONArray("dataOriginFilter")?.toList<String>()?.map { DataOrigin(it) }?.toSet() ?: emptySet()
+}
+
+fun <T> JSONArray.toList(): List<T> {
+    return (0 until this.length()).map {
+        @Suppress("UNCHECKED_CAST")
+        this.get(it) as T
     }
 }
