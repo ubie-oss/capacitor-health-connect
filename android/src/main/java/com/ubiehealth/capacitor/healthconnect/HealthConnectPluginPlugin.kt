@@ -36,15 +36,6 @@ class HealthConnectPluginPlugin : Plugin() {
         PermissionController.createRequestPermissionResultContract()
     }
 
-    private val implementation = HealthConnectPlugin()
-    @PluginMethod
-    fun echo(call: PluginCall) {
-        val value = call.getString("value")
-        val ret = JSObject()
-        ret.put("value", implementation.echo(value!!))
-        call.resolve(ret)
-    }
-
     @PluginMethod
     fun checkAvailability(call: PluginCall) {
         val availability = when {

@@ -1,5 +1,4 @@
 export interface HealthConnectPluginPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
   checkAvailability(): Promise<{ availability: HealthConnectAvailability }>;
   insertRecords(options: {
     records: Record[];
