@@ -1,5 +1,5 @@
 {
-  "name": "capacitor-health-connect",
+  "name": "@ubie-inc/capacitor-health-connect",
   "version": "0.0.1",
   "description": "Android Health Connect integration for Capacitor",
   "main": "dist/plugin.cjs.js",
@@ -63,5 +63,8 @@
     "android": {
       "src": "android"
     }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
