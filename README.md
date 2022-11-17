@@ -5,7 +5,7 @@ Android Health Connect integration for Capacitor
 ## Install
 
 ```bash
-npm install capacitor-health-connect
+npm install @ubie-inc/capacitor-health-connect
 npx cap sync
 ```
 
