@@ -40,17 +40,17 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@capacitor/android": "^4.0.0",
-    "@capacitor/core": "^4.0.0",
-    "@capacitor/docgen": "^0.0.18",
+    "@capacitor/android": "^4.7.0",
+    "@capacitor/core": "^4.7.0",
+    "@capacitor/docgen": "^0.2.1",
     "@ionic/eslint-config": "^0.3.0",
-    "@ionic/prettier-config": "^1.0.1",
-    "eslint": "^7.11.0",
-    "prettier": "~2.3.0",
-    "prettier-plugin-java": "~1.0.2",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.32.0",
-    "typescript": "~4.1.5"
+    "@ionic/prettier-config": "^2.0.0",
+    "eslint": "^8.34.0",
+    "prettier": "~2.8.4",
+    "prettier-plugin-java": "~2.0.0",
+    "rimraf": "^4.1.2",
+    "rollup": "^3.17.2",
+    "typescript": "~4.9.5"
   },
   "peerDependencies": {
     "@capacitor/core": "^4.0.0"
