@@ -38,7 +38,7 @@ export type HealthConnectAvailability =
   | 'NotInstalled'
   | 'NotSupported';
 
-export type RecordType = 'Weight' | 'Steps';
+export type RecordType = 'Weight' | 'Steps' | "BloodGlucose";
 
 type RecordBase = {
   metadata: RecordMetadata;
@@ -58,6 +58,15 @@ export type Record = RecordBase &
         endTime: Date;
         endZoneOffset?: string;
         count: number;
+      }
+      | {
+        type: "BloodGlucose";
+        time: Date;
+        zoneOffset?: string;
+        level: BloodGlucose;
+        specimenSource: "unknown" | "interstitial_fluid" | "capillary_blood" | "plasma" | "serum" | "tears" | "whole_blood";
+        mealType: "unknown" | "breakfast" | "lunch" | "dinner" | "snack";
+        relationToMeal: "unknown" | "general" | "fasting" | "before_meal" | "after_meal";
       }
   );
 
@@ -94,3 +103,8 @@ export type Mass = {
   unit: 'gram' | 'kilogram' | 'milligram' | 'microgram' | 'ounce' | 'pound';
   value: number;
 };
+
+export type BloodGlucose = {
+  unit: "milligramsPerDeciliter" | "millimolesPerLiter";
+  value: number;
+}

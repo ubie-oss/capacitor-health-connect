@@ -4,17 +4,16 @@ import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
-import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.*
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.Mass
-import com.getcapacitor.JSArray
 import com.getcapacitor.JSObject
 import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.RuntimeException
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -42,6 +41,17 @@ fun JSONObject.toRecord(): Record {
                 endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
                 count = this.getLong("count"),
         )
+        "BloodGlucose" -> BloodGlucoseRecord(
+                time = this.getInstant("time"),
+                zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+                level = this.getBloodGlucose("level"),
+                specimenSource = BloodGlucoseRecord.SPECIMEN_SOURCE_STRING_TO_INT_MAP
+                        .getOrDefault(this.getString("specimenSource"), BloodGlucoseRecord.SPECIMEN_SOURCE_UNKNOWN),
+                mealType = MealType.MEAL_TYPE_STRING_TO_INT_MAP
+                        .getOrDefault(this.getString("mealType"), MealType.MEAL_TYPE_UNKNOWN),
+                relationToMeal = BloodGlucoseRecord.RELATION_TO_MEAL_STRING_TO_INT_MAP
+                        .getOrDefault(this.getString("relationToMeal"), BloodGlucoseRecord.RELATION_TO_MEAL_UNKNOWN),
+        )
         else -> throw IllegalArgumentException("Unexpected record type: $type")
     }
 }
@@ -62,6 +72,14 @@ fun Record.toJSONObject(): JSONObject {
                 obj.put("endTime", this.endTime)
                 obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
                 obj.put("count", this.count)
+            }
+            is BloodGlucoseRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("level", this.level.toJSONObject())
+                obj.put("specimenSource", BloodGlucoseRecord.SPECIMEN_SOURCE_INT_TO_STRING_MAP.getOrDefault(this.specimenSource, "unknown"))
+                obj.put("mealType", MealType.MEAL_TYPE_INT_TO_STRING_MAP.getOrDefault(this.mealType, "unknown"))
+                obj.put("relationToMeal", BloodGlucoseRecord.RELATION_TO_MEAL_INT_TO_STRING_MAP.getOrDefault(this.relationToMeal, "unknown"))
             }
             else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
         }
@@ -126,6 +144,24 @@ fun Mass.toJSONObject(): JSONObject {
         // TODO: support other unit
         obj.put("unit", "gram")
         obj.put("value", this.inGrams)
+    }
+}
+
+fun BloodGlucose.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("unit", "milligramsPerDeciliter")
+        obj.put("value", this.inMilligramsPerDeciliter)
+    }
+}
+
+fun JSONObject.getBloodGlucose(name: String): BloodGlucose {
+    val obj = requireNotNull(this.getJSONObject(name))
+
+    val value = obj.getDouble("value")
+    return when (val unit = obj.getString("unit")) {
+        "milligramsPerDeciliter" -> BloodGlucose.milligramsPerDeciliter(value)
+        "millimolesPerLiter" -> BloodGlucose.millimolesPerLiter(value)
+        else -> throw RuntimeException("Invalid BloodGlucose unit: $unit")
     }
 }
 
