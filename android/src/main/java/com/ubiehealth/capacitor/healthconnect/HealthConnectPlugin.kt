@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.RuntimeException
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.Date
@@ -49,10 +50,11 @@ class HealthConnectPlugin : Plugin() {
 
     @PluginMethod
     fun checkAvailability(call: PluginCall) {
-        val availability = when {
-            HealthConnectClient.isAvailable(this.context) -> "Available"
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 -> "NotInstalled"
-            else -> "NotSupported"
+        val availability = when (val status = HealthConnectClient.sdkStatus(this.context)) {
+            HealthConnectClient.SDK_AVAILABLE -> "Available"
+            HealthConnectClient.SDK_UNAVAILABLE -> "NotSupported"
+            HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> "NotInstalled"
+            else -> throw RuntimeException("Invalid sdk status: $status")
         }
 
         val res = JSObject().apply {
@@ -162,12 +164,12 @@ class HealthConnectPlugin : Plugin() {
     @PluginMethod
     fun requestHealthPermissions(call: PluginCall) {
         val readPermissions = call.getArray("read").toList<String>().map {
-            HealthPermission.createReadPermission(
+            HealthPermission.getReadPermission(
                 recordType = RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
             )
         }.toSet()
         val writePermissions = call.getArray("write").toList<String>().map {
-            HealthPermission.createWritePermission(
+            HealthPermission.getWritePermission(
                 recordType = RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
             )
         }.toSet()
@@ -182,26 +184,22 @@ class HealthConnectPlugin : Plugin() {
 
     @ActivityCallback
     fun handleRequestPermission(call: PluginCall, result: ActivityResult) {
-        val permissions = permissionContract.parseResult(result.resultCode, result.data)
-            .map { it.toProtoPermission() }
-                .toSet()
-        val readPermissions = permissions
-            .filter { it.accessType == PermissionProto.AccessType.ACCESS_TYPE_READ }
-            .map { it.dataType.name }
-        val writePermissions = permissions
-            .filter { it.accessType == PermissionProto.AccessType.ACCESS_TYPE_WRITE }
-            .map { it.dataType.name }
+        val reqReadPermissions = call.getArray("read").toList<String>().map {
+            HealthPermission.getReadPermission(
+                    recordType = RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+            )
+        }.toSet()
+        val reqWritePermissions = call.getArray("write").toList<String>().map {
+            HealthPermission.getWritePermission(
+                    recordType = RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+            )
+        }.toSet()
 
-        val hasAllPermissions = readPermissions.containsAll(call.getArray("read").toList())
-            && writePermissions.containsAll(call.getArray("write").toList())
-
+        val grantedPermissions = permissionContract.parseResult(result.resultCode, result.data).toSet()
+        val hasAllPermissions = grantedPermissions.containsAll(reqReadPermissions + reqWritePermissions)
 
         val res = JSObject().apply {
-            val grantedPermissions = JSObject().apply {
-                put("read", readPermissions.toJSONArray())
-                put("write", writePermissions.toJSONArray())
-            }
-            put("grantedPermissions", grantedPermissions)
+            put("grantedPermissions", JSArray(grantedPermissions))
             put("hasAllPermissions", hasAllPermissions)
         }
         call.resolve(res)
