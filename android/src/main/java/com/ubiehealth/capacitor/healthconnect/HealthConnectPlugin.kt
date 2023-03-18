@@ -204,4 +204,31 @@ class HealthConnectPlugin : Plugin() {
         }
         call.resolve(res)
     }
+
+    @PluginMethod
+    fun checkHealthPermissions(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            val reqReadPermissions = call.getArray("read").toList<String>().map {
+                HealthPermission.getReadPermission(
+                        recordType = RECORDS_TYPE_NAME_MAP[it]
+                                ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+                )
+            }.toSet()
+            val reqWritePermissions = call.getArray("write").toList<String>().map {
+                HealthPermission.getWritePermission(
+                        recordType = RECORDS_TYPE_NAME_MAP[it]
+                                ?: throw IllegalArgumentException("Unexpected RecordType: $it")
+                )
+            }.toSet()
+
+            val grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()
+            val hasAllPermissions = grantedPermissions.containsAll(reqReadPermissions + reqWritePermissions)
+
+            val res = JSObject().apply {
+                put("grantedPermissions", JSArray(grantedPermissions))
+                put("hasAllPermissions", hasAllPermissions)
+            }
+            call.resolve(res)
+        }
+    }
 }

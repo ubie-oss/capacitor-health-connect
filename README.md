@@ -20,6 +20,7 @@ npx cap sync
 * [`getChangesToken(...)`](#getchangestoken)
 * [`getChanges(...)`](#getchanges)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
+* [`checkHealthPermissions(...)`](#checkhealthpermissions)
 * [Type Aliases](#type-aliases)
 
 </docgen-index>
@@ -128,6 +129,21 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 --------------------
 
 
+### checkHealthPermissions(...)
+
+```typescript
+checkHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) => any
+```
+
+| Param         | Type                                  |
+| ------------- | ------------------------------------- |
+| **`options`** | <code>{ read: {}; write: {}; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
 ### Type Aliases
 
 
@@ -138,7 +154,7 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 
 #### Record
 
-<code><a href="#recordbase">RecordBase</a> & ( | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } )</code>
+<code><a href="#recordbase">RecordBase</a> & ( | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; } )</code>
 
 
 #### RecordBase
@@ -156,9 +172,14 @@ requestHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) 
 <code>{ unit: 'gram' | 'kilogram' | 'milligram' | 'microgram' | 'ounce' | 'pound'; value: number; }</code>
 
 
+#### BloodGlucose
+
+<code>{ unit: 'milligramsPerDeciliter' | 'millimolesPerLiter'; value: number; }</code>
+
+
 #### RecordType
 
-<code>'Weight' | 'Steps'</code>
+<code>'Weight' | 'Steps' | '<a href="#bloodglucose">BloodGlucose</a>'</code>
 
 
 #### TimeRangeFilter

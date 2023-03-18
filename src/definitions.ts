@@ -1,8 +1,6 @@
 export interface HealthConnectPlugin {
   checkAvailability(): Promise<{ availability: HealthConnectAvailability }>;
-  insertRecords(options: {
-    records: Omit<Record, 'metadata'>[];
-  }): Promise<{ recordIds: string[] }>;
+  insertRecords(options: { records: Omit<Record, 'metadata'>[] }): Promise<{ recordIds: string[] }>;
   readRecord(options: { type: RecordType; recordId: string }): Promise<{
     record: Record;
   }>;
@@ -18,27 +16,20 @@ export interface HealthConnectPlugin {
     pageToken?: string;
   }>;
   getChangesToken(options: { types: RecordType[] }): Promise<{ token: string }>;
-  getChanges(options: {
-    token: string;
-  }): Promise<{ changes: Change[]; nextToken: string }>;
-  requestHealthPermissions(options: {
-    read: RecordType[];
-    write: RecordType[];
-  }): Promise<{
-    grantedPermissions: {
-      read: RecordType[];
-      write: RecordType[];
-    };
+  getChanges(options: { token: string }): Promise<{ changes: Change[]; nextToken: string }>;
+  requestHealthPermissions(options: { read: RecordType[]; write: RecordType[] }): Promise<{
+    grantedPermissions: string[];
+    hasAllPermissions: boolean;
+  }>;
+  checkHealthPermissions(options: { read: RecordType[]; write: RecordType[] }): Promise<{
+    grantedPermissions: string[];
     hasAllPermissions: boolean;
   }>;
 }
 
-export type HealthConnectAvailability =
-  | 'Available'
-  | 'NotInstalled'
-  | 'NotSupported';
+export type HealthConnectAvailability = 'Available' | 'NotInstalled' | 'NotSupported';
 
-export type RecordType = 'Weight' | 'Steps' | "BloodGlucose";
+export type RecordType = 'Weight' | 'Steps' | 'BloodGlucose';
 
 type RecordBase = {
   metadata: RecordMetadata;
@@ -59,14 +50,21 @@ export type Record = RecordBase &
         endZoneOffset?: string;
         count: number;
       }
-      | {
-        type: "BloodGlucose";
+    | {
+        type: 'BloodGlucose';
         time: Date;
         zoneOffset?: string;
         level: BloodGlucose;
-        specimenSource: "unknown" | "interstitial_fluid" | "capillary_blood" | "plasma" | "serum" | "tears" | "whole_blood";
-        mealType: "unknown" | "breakfast" | "lunch" | "dinner" | "snack";
-        relationToMeal: "unknown" | "general" | "fasting" | "before_meal" | "after_meal";
+        specimenSource:
+          | 'unknown'
+          | 'interstitial_fluid'
+          | 'capillary_blood'
+          | 'plasma'
+          | 'serum'
+          | 'tears'
+          | 'whole_blood';
+        mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack';
+        relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal';
       }
   );
 
@@ -105,6 +103,6 @@ export type Mass = {
 };
 
 export type BloodGlucose = {
-  unit: "milligramsPerDeciliter" | "millimolesPerLiter";
+  unit: 'milligramsPerDeciliter' | 'millimolesPerLiter';
   value: number;
-}
+};
