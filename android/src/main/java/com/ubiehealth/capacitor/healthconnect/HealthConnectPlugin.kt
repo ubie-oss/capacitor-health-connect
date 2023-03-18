@@ -231,4 +231,12 @@ class HealthConnectPlugin : Plugin() {
             call.resolve(res)
         }
     }
+
+    @PluginMethod
+    fun revokeHealthPermissions(call: PluginCall) {
+        this.activity.lifecycleScope.launch {
+            healthConnectClient.permissionController.revokeAllPermissions()
+            call.resolve()
+        }
+    }
 }

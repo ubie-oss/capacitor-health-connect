@@ -21,6 +21,7 @@ npx cap sync
 * [`getChanges(...)`](#getchanges)
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [`checkHealthPermissions(...)`](#checkhealthpermissions)
+* [`revokeHealthPermissions()`](#revokehealthpermissions)
 * [Type Aliases](#type-aliases)
 
 </docgen-index>
@@ -138,6 +139,17 @@ checkHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) =>
 | Param         | Type                                  |
 | ------------- | ------------------------------------- |
 | **`options`** | <code>{ read: {}; write: {}; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### revokeHealthPermissions()
+
+```typescript
+revokeHealthPermissions() => any
+```
 
 **Returns:** <code>any</code>
 
