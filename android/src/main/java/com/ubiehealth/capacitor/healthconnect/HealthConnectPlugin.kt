@@ -1,5 +1,7 @@
 package com.ubiehealth.capacitor.healthconnect
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
@@ -163,6 +165,18 @@ class HealthConnectPlugin : Plugin() {
 
     @PluginMethod
     fun requestHealthPermissions(call: PluginCall) {
+        if (HealthConnectClient.sdkStatus(this.context) == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setPackage("com.android.vending")
+            intent.data = Uri.parse("market://details")
+                    .buildUpon()
+                    .appendQueryParameter("id", "com.google.android.apps.healthdata")
+                    .appendQueryParameter("url", "healthconnect://onboarding")
+                    .build()
+            startActivityForResult(call, intent, "handleInstalled")
+            return
+        }
+
         val readPermissions = call.getArray("read").toList<String>().map {
             HealthPermission.getReadPermission(
                 recordType = RECORDS_TYPE_NAME_MAP[it] ?: throw IllegalArgumentException("Unexpected RecordType: $it")
@@ -175,11 +189,16 @@ class HealthConnectPlugin : Plugin() {
         }.toSet()
 
         val intent = permissionContract.createIntent(
-            context = this.context,
-            input = readPermissions + writePermissions
+            this.context,
+            readPermissions + writePermissions
         )
 
         startActivityForResult(call, intent, "handleRequestPermission")
+    }
+
+    @ActivityCallback
+    fun handleInstalled(call: PluginCall, result: ActivityResult) {
+        requestHealthPermissions(call)
     }
 
     @ActivityCallback
