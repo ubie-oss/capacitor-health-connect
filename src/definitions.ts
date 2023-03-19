@@ -26,6 +26,7 @@ export interface HealthConnectPlugin {
     hasAllPermissions: boolean;
   }>;
   revokeHealthPermissions(): Promise<void>;
+  openHealthConnectSetting(): Promise<void>;
 }
 
 export type HealthConnectAvailability = 'Available' | 'NotInstalled' | 'NotSupported';

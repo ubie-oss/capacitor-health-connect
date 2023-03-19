@@ -22,6 +22,7 @@ npx cap sync
 * [`requestHealthPermissions(...)`](#requesthealthpermissions)
 * [`checkHealthPermissions(...)`](#checkhealthpermissions)
 * [`revokeHealthPermissions()`](#revokehealthpermissions)
+* [`openHealthConnectSetting()`](#openhealthconnectsetting)
 * [Type Aliases](#type-aliases)
 
 </docgen-index>
@@ -149,6 +150,17 @@ checkHealthPermissions(options: { read: RecordType[]; write: RecordType[]; }) =>
 
 ```typescript
 revokeHealthPermissions() => any
+```
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### openHealthConnectSetting()
+
+```typescript
+openHealthConnectSetting() => any
 ```
 
 **Returns:** <code>any</code>

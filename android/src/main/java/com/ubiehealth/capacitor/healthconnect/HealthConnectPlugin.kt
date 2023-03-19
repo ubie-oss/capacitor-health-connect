@@ -43,6 +43,11 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.Date
 
+/**
+ * @link https://developer.android.com/reference/android/os/Build.VERSION_CODES#UPSIDE_DOWN_CAKE
+ */
+const val UPSIDE_DOWN_CAKE = 10000
+
 @CapacitorPlugin(name = "HealthConnect")
 class HealthConnectPlugin : Plugin() {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(this.context) }
@@ -257,5 +262,14 @@ class HealthConnectPlugin : Plugin() {
             healthConnectClient.permissionController.revokeAllPermissions()
             call.resolve()
         }
+    }
+
+    @PluginMethod
+    fun openHealthConnectSetting(call: PluginCall) {
+        val action = if (Build.VERSION.SDK_INT < UPSIDE_DOWN_CAKE) HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS else "android.healthconnect.action.HEALTH_HOME_SETTINGS"
+        val intent = Intent(action)
+        this.context.startActivity(intent)
+
+        call.resolve()
     }
 }
