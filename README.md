@@ -44,7 +44,7 @@ checkAvailability() => any
 ### insertRecords(...)
 
 ```typescript
-insertRecords(options: { records: Omit<Record, 'metadata'>[]; }) => any
+insertRecords(options: { records: Record[]; }) => any
 ```
 
 | Param         | Type                          |
@@ -178,17 +178,7 @@ openHealthConnectSetting() => any
 
 #### Record
 
-<code><a href="#recordbase">RecordBase</a> & ( | { type: 'Height'; time: Date; zoneOffset?: string; height: <a href="#length">Length</a>; } | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; } )</code>
-
-
-#### RecordBase
-
-<code>{ metadata: <a href="#recordmetadata">RecordMetadata</a>; }</code>
-
-
-#### RecordMetadata
-
-<code>{ id: string; clientRecordId?: string; clientRecordVersion: number; lastModifiedTime: Date; dataOrigin: string; }</code>
+<code>{ type: 'Height'; time: Date; zoneOffset?: string; height: <a href="#length">Length</a>; } | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; }</code>
 
 
 #### Length
@@ -209,6 +199,21 @@ openHealthConnectSetting() => any
 #### RecordType
 
 <code>'Height' | 'Weight' | 'Steps' | '<a href="#bloodglucose">BloodGlucose</a>'</code>
+
+
+#### StoredRecord
+
+<code><a href="#recordbase">RecordBase</a> & <a href="#record">Record</a></code>
+
+
+#### RecordBase
+
+<code>{ metadata: <a href="#recordmetadata">RecordMetadata</a>; }</code>
+
+
+#### RecordMetadata
+
+<code>{ id: string; clientRecordId?: string; clientRecordVersion: number; lastModifiedTime: Date; dataOrigin: string; }</code>
 
 
 #### TimeRangeFilter
