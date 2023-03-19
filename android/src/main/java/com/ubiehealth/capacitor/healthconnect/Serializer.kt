@@ -9,6 +9,7 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.BloodGlucose
+import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Mass
 import com.getcapacitor.JSObject
 import org.json.JSONArray
@@ -29,6 +30,11 @@ fun <T> List<T>.toJSONArray(): JSONArray {
 
 fun JSONObject.toRecord(): Record {
     return when (val type = this.get("type")) {
+        "Height" -> HeightRecord(
+                time = this.getInstant("time"),
+                zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+                height = this.getLength("height"),
+        )
         "Weight" -> WeightRecord(
                 time = this.getInstant("time"),
                 zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
@@ -61,6 +67,11 @@ fun Record.toJSONObject(): JSONObject {
         obj.put("metadata", this.metadata.toJSONObject())
 
         when (this) {
+            is HeightRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("height", this.height.toJSONObject())
+            }
             is WeightRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
@@ -123,6 +134,28 @@ fun JSONObject.getZoneOffsetOrNull(name: String): ZoneOffset? {
 }
 fun ZoneOffset.toJSONValue(): String {
     return this.id
+}
+
+fun JSONObject.getLength(name: String): Length {
+    val obj = requireNotNull(this.getJSONObject(name))
+    val unit = obj.getString("unit")
+    val value = obj.getDouble("value")
+    return when (unit) {
+        "meter" -> Length.meters(value)
+        "kilometer" -> Length.kilometers(value)
+        "mile" -> Length.miles(value)
+        "inch" -> Length.inches(value)
+        "feet" -> Length.feet(value)
+        else -> throw IllegalArgumentException("Unexpected mass unit: $unit")
+    }
+}
+
+fun Length.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        // TODO: support other unit
+        obj.put("unit", "meter")
+        obj.put("value", this.inMeters)
+    }
 }
 
 fun JSONObject.getMass(name: String): Mass {
