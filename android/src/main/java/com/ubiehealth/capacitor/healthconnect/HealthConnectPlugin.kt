@@ -50,7 +50,7 @@ const val UPSIDE_DOWN_CAKE = 10000
 
 @CapacitorPlugin(name = "HealthConnect")
 class HealthConnectPlugin : Plugin() {
-    private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(this.context) }
+    private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(this.context.applicationContext) }
     private val permissionContract by lazy {
         PermissionController.createRequestPermissionResultContract()
     }
