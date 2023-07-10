@@ -5,13 +5,12 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
 import androidx.health.connect.client.records.*
+import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_INT_TO_STRING_MAP
+import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.time.TimeRangeFilter
-import androidx.health.connect.client.units.BloodGlucose
-import androidx.health.connect.client.units.Energy
-import androidx.health.connect.client.units.Length
-import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.*
 import com.getcapacitor.JSObject
 import org.json.JSONArray
 import org.json.JSONObject
@@ -19,18 +18,18 @@ import java.lang.RuntimeException
 import java.time.Instant
 import java.time.ZoneOffset
 
-fun <T> JSONArray.toList(): List<T> {
+internal fun <T> JSONArray.toList(): List<T> {
     return (0 until this.length()).map {
         @Suppress("UNCHECKED_CAST")
         this.get(it) as T
     }
 }
 
-fun <T> List<T>.toJSONArray(): JSONArray {
+internal fun <T> List<T>.toJSONArray(): JSONArray {
     return JSONArray(this)
 }
 
-fun JSONObject.toRecord(): Record {
+internal fun JSONObject.toRecord(): Record {
     return when (val type = this.get("type")) {
         "ActiveCalories" -> ActiveCaloriesBurnedRecord(
             startTime = this.getInstant("startTime"),
@@ -38,6 +37,12 @@ fun JSONObject.toRecord(): Record {
             endTime = this.getInstant("endTime"),
             endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
             energy = this.getEnergy("energy"),
+        )
+        "BasalBodyTemperature" -> BasalBodyTemperatureRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            temperature = this.getTemperature("temperature"),
+            measurementLocation = this.getBodyTemperatureMeasurementLocationInt("measurementLocation"),
         )
         "Height" -> HeightRecord(
             time = this.getInstant("time"),
@@ -72,7 +77,7 @@ fun JSONObject.toRecord(): Record {
     }
 }
 
-fun Record.toJSONObject(): JSONObject {
+internal fun Record.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
         obj.put("type", RECORDS_CLASS_NAME_MAP[this::class])
         obj.put("metadata", this.metadata.toJSONObject())
@@ -84,6 +89,12 @@ fun Record.toJSONObject(): JSONObject {
                 obj.put("endTime", this.endTime)
                 obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
                 obj.put("energy", this.energy.toJSONObject())
+            }
+            is BasalBodyTemperatureRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("temperature", this.temperature.toJSONObject())
+                obj.put("measurementLocation", this.measurementLocation.toBodyTemperatureMeasurementLocationString())
             }
             is HeightRecord -> {
                 obj.put("time", this.time)
@@ -121,7 +132,7 @@ fun Record.toJSONObject(): JSONObject {
     }
 }
 
-fun Metadata.toJSONObject(): JSONObject {
+internal fun Metadata.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
         obj.put("id", this.id)
         obj.put("clientRecordId", this.clientRecordId)
@@ -131,7 +142,7 @@ fun Metadata.toJSONObject(): JSONObject {
     }
 }
 
-fun Change.toJSObject(): JSObject {
+internal fun Change.toJSObject(): JSObject {
     return JSObject().also { obj ->
         when (this) {
             is UpsertionChange -> {
@@ -147,22 +158,22 @@ fun Change.toJSObject(): JSObject {
     }
 }
 
-fun JSONObject.getInstant(name: String): Instant {
+internal fun JSONObject.getInstant(name: String): Instant {
     return Instant.parse(this.getString(name))
 }
 
-fun JSONObject.getZoneOffsetOrNull(name: String): ZoneOffset? {
+internal fun JSONObject.getZoneOffsetOrNull(name: String): ZoneOffset? {
     return if (this.has(name))
         ZoneOffset.of(this.getString(name))
     else
         null
 }
 
-fun ZoneOffset.toJSONValue(): String {
+internal fun ZoneOffset.toJSONValue(): String {
     return this.id
 }
 
-fun JSONObject.getLength(name: String): Length {
+internal fun JSONObject.getLength(name: String): Length {
     val obj = requireNotNull(this.getJSONObject(name))
     val unit = obj.getString("unit")
     val value = obj.getDouble("value")
@@ -176,14 +187,14 @@ fun JSONObject.getLength(name: String): Length {
     }
 }
 
-fun Length.toJSONObject(): JSONObject {
+internal fun Length.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
         obj.put("unit", "meter") // TODO: support other units
         obj.put("value", this.inMeters)
     }
 }
 
-fun JSONObject.getMass(name: String): Mass {
+internal fun JSONObject.getMass(name: String): Mass {
     val obj = requireNotNull(this.getJSONObject(name))
     val unit = obj.getString("unit")
     val value = obj.getDouble("value")
@@ -198,21 +209,21 @@ fun JSONObject.getMass(name: String): Mass {
     }
 }
 
-fun Mass.toJSONObject(): JSONObject {
+internal fun Mass.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
         obj.put("unit", "gram") // TODO: support other units
         obj.put("value", this.inGrams)
     }
 }
 
-fun BloodGlucose.toJSONObject(): JSONObject {
+internal fun BloodGlucose.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
         obj.put("unit", "milligramsPerDeciliter") // TODO: support other units
         obj.put("value", this.inMilligramsPerDeciliter)
     }
 }
 
-fun JSONObject.getBloodGlucose(name: String): BloodGlucose {
+internal fun JSONObject.getBloodGlucose(name: String): BloodGlucose {
     val obj = requireNotNull(this.getJSONObject(name))
 
     val value = obj.getDouble("value")
@@ -223,14 +234,14 @@ fun JSONObject.getBloodGlucose(name: String): BloodGlucose {
     }
 }
 
-fun Energy.toJSONObject(): JSONObject {
+internal fun Energy.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
         obj.put("unit", "calories") // TODO: support other units
         obj.put("value", this.inCalories)
     }
 }
 
-fun JSONObject.getEnergy(name: String): Energy {
+internal fun JSONObject.getEnergy(name: String): Energy {
     val obj = requireNotNull(this.getJSONObject(name))
 
     val value = obj.getDouble("value")
@@ -243,7 +254,34 @@ fun JSONObject.getEnergy(name: String): Energy {
     }
 }
 
-fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
+internal fun Temperature.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("unit", "celsius") // TODO: support other units
+        obj.put("value", this.inCelsius)
+    }
+}
+
+internal fun JSONObject.getTemperature(name: String): Temperature {
+    val obj = requireNotNull(this.getJSONObject(name))
+
+    val value = obj.getDouble("value")
+    return when (val unit = obj.getString("unit")) {
+        "celsius" -> Temperature.celsius(value)
+        "fahrenheit" -> Temperature.fahrenheit(value)
+        else -> throw RuntimeException("Invalid Temperature unit: $unit")
+    }
+}
+
+internal fun Int.toBodyTemperatureMeasurementLocationString(): String {
+    return MEASUREMENT_LOCATION_INT_TO_STRING_MAP.getOrDefault(this, "unknown")
+}
+
+internal fun JSONObject.getBodyTemperatureMeasurementLocationInt(name: String): Int {
+    val str = requireNotNull(this.getString(name))
+    return MEASUREMENT_LOCATION_STRING_TO_INT_MAP.getOrDefault(str, BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_UNKNOWN)
+}
+
+internal fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
     val obj = requireNotNull(this.getJSONObject(name))
     return when (val type = obj.getString("type")) {
         "before" -> TimeRangeFilter.before(obj.getInstant("time"))
@@ -253,6 +291,6 @@ fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
     }
 }
 
-fun JSObject.getDataOriginFilter(name: String): Set<DataOrigin> {
+internal fun JSObject.getDataOriginFilter(name: String): Set<DataOrigin> {
     return this.optJSONArray(name)?.toList<String>()?.map { DataOrigin(it) }?.toSet() ?: emptySet()
 }
