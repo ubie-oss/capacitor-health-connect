@@ -9,6 +9,7 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.BloodGlucose
+import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Mass
 import com.getcapacitor.JSObject
@@ -31,18 +32,23 @@ fun <T> List<T>.toJSONArray(): JSONArray {
 
 fun JSONObject.toRecord(): Record {
     return when (val type = this.get("type")) {
+        "ActiveCalories" -> ActiveCaloriesBurnedRecord(
+            startTime = this.getInstant("startTime"),
+            startZoneOffset = this.getZoneOffsetOrNull("startZoneOffset"),
+            endTime = this.getInstant("endTime"),
+            endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
+            energy = this.getEnergy("energy"),
+        )
         "Height" -> HeightRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
             height = this.getLength("height"),
         )
-
         "Weight" -> WeightRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
             weight = this.getMass("weight"),
         )
-
         "Steps" -> StepsRecord(
             startTime = this.getInstant("startTime"),
             startZoneOffset = this.getZoneOffsetOrNull("startZoneOffset"),
@@ -50,7 +56,6 @@ fun JSONObject.toRecord(): Record {
             endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
             count = this.getLong("count"),
         )
-
         "BloodGlucose" -> BloodGlucoseRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
@@ -73,18 +78,23 @@ fun Record.toJSONObject(): JSONObject {
         obj.put("metadata", this.metadata.toJSONObject())
 
         when (this) {
+            is ActiveCaloriesBurnedRecord -> {
+                obj.put("startTime", this.startTime)
+                obj.put("startZoneOffset", this.startZoneOffset?.toJSONValue())
+                obj.put("endTime", this.endTime)
+                obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
+                obj.put("energy", this.energy.toJSONObject())
+            }
             is HeightRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
                 obj.put("height", this.height.toJSONObject())
             }
-
             is WeightRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
                 obj.put("weight", this.weight.toJSONObject())
             }
-
             is StepsRecord -> {
                 obj.put("startTime", this.startTime)
                 obj.put("startZoneOffset", this.startZoneOffset?.toJSONValue())
@@ -92,7 +102,6 @@ fun Record.toJSONObject(): JSONObject {
                 obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
                 obj.put("count", this.count)
             }
-
             is BloodGlucoseRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
@@ -107,7 +116,6 @@ fun Record.toJSONObject(): JSONObject {
                     BloodGlucoseRecord.RELATION_TO_MEAL_INT_TO_STRING_MAP.getOrDefault(this.relationToMeal, "unknown")
                 )
             }
-
             else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
         }
     }
@@ -170,8 +178,7 @@ fun JSONObject.getLength(name: String): Length {
 
 fun Length.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
-        // TODO: support other unit
-        obj.put("unit", "meter")
+        obj.put("unit", "meter") // TODO: support other units
         obj.put("value", this.inMeters)
     }
 }
@@ -193,15 +200,14 @@ fun JSONObject.getMass(name: String): Mass {
 
 fun Mass.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
-        // TODO: support other unit
-        obj.put("unit", "gram")
+        obj.put("unit", "gram") // TODO: support other units
         obj.put("value", this.inGrams)
     }
 }
 
 fun BloodGlucose.toJSONObject(): JSONObject {
     return JSONObject().also { obj ->
-        obj.put("unit", "milligramsPerDeciliter")
+        obj.put("unit", "milligramsPerDeciliter") // TODO: support other units
         obj.put("value", this.inMilligramsPerDeciliter)
     }
 }
@@ -214,6 +220,26 @@ fun JSONObject.getBloodGlucose(name: String): BloodGlucose {
         "milligramsPerDeciliter" -> BloodGlucose.milligramsPerDeciliter(value)
         "millimolesPerLiter" -> BloodGlucose.millimolesPerLiter(value)
         else -> throw RuntimeException("Invalid BloodGlucose unit: $unit")
+    }
+}
+
+fun Energy.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("unit", "calories") // TODO: support other units
+        obj.put("value", this.inCalories)
+    }
+}
+
+fun JSONObject.getEnergy(name: String): Energy {
+    val obj = requireNotNull(this.getJSONObject(name))
+
+    val value = obj.getDouble("value")
+    return when (val unit = obj.getString("unit")) {
+        "calories" -> Energy.calories(value)
+        "kilocalories" -> Energy.kilocalories(value)
+        "joules" -> Energy.joules(value)
+        "kilojoules" -> Energy.kilojoules(value)
+        else -> throw RuntimeException("Invalid Energy unit: $unit")
     }
 }
 
