@@ -49,6 +49,27 @@ internal fun JSONObject.toRecord(): Record {
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
             basalMetabolicRate = this.getPower("basalMetabolicRate"),
         )
+        "BloodGlucose" -> BloodGlucoseRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            level = this.getBloodGlucose("level"),
+            specimenSource = BloodGlucoseRecord.SPECIMEN_SOURCE_STRING_TO_INT_MAP
+                .getOrDefault(this.getString("specimenSource"), BloodGlucoseRecord.SPECIMEN_SOURCE_UNKNOWN),
+            mealType = MealType.MEAL_TYPE_STRING_TO_INT_MAP
+                .getOrDefault(this.getString("mealType"), MealType.MEAL_TYPE_UNKNOWN),
+            relationToMeal = BloodGlucoseRecord.RELATION_TO_MEAL_STRING_TO_INT_MAP
+                .getOrDefault(this.getString("relationToMeal"), BloodGlucoseRecord.RELATION_TO_MEAL_UNKNOWN),
+        )
+        "BloodPressure" -> BloodPressureRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            systolic = this.getPressure("systolic"),
+            diastolic = this.getPressure("diastolic"),
+            bodyPosition = BloodPressureRecord.BODY_POSITION_STRING_TO_INT_MAP
+                .getOrDefault(this.getString("bodyPosition"), BloodPressureRecord.BODY_POSITION_UNKNOWN),
+            measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_STRING_TO_INT_MAP
+                .getOrDefault(this.getString("measurementLocation"), BloodPressureRecord.MEASUREMENT_LOCATION_UNKNOWN),
+        )
         "Height" -> HeightRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
@@ -65,17 +86,6 @@ internal fun JSONObject.toRecord(): Record {
             endTime = this.getInstant("endTime"),
             endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
             count = this.getLong("count"),
-        )
-        "BloodGlucose" -> BloodGlucoseRecord(
-            time = this.getInstant("time"),
-            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
-            level = this.getBloodGlucose("level"),
-            specimenSource = BloodGlucoseRecord.SPECIMEN_SOURCE_STRING_TO_INT_MAP
-                .getOrDefault(this.getString("specimenSource"), BloodGlucoseRecord.SPECIMEN_SOURCE_UNKNOWN),
-            mealType = MealType.MEAL_TYPE_STRING_TO_INT_MAP
-                .getOrDefault(this.getString("mealType"), MealType.MEAL_TYPE_UNKNOWN),
-            relationToMeal = BloodGlucoseRecord.RELATION_TO_MEAL_STRING_TO_INT_MAP
-                .getOrDefault(this.getString("relationToMeal"), BloodGlucoseRecord.RELATION_TO_MEAL_UNKNOWN),
         )
 
         else -> throw IllegalArgumentException("Unexpected record type: $type")
@@ -106,6 +116,22 @@ internal fun Record.toJSONObject(): JSONObject {
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
                 obj.put("basalMetabolicRate", this.basalMetabolicRate.toJSONObject())
             }
+            is BloodGlucoseRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("level", this.level.toJSONObject())
+                obj.put("specimenSource", BloodGlucoseRecord.SPECIMEN_SOURCE_INT_TO_STRING_MAP.getOrDefault(this.specimenSource, "unknown"))
+                obj.put("mealType", MealType.MEAL_TYPE_INT_TO_STRING_MAP.getOrDefault(this.mealType, "unknown"))
+                obj.put("relationToMeal", BloodGlucoseRecord.RELATION_TO_MEAL_INT_TO_STRING_MAP.getOrDefault(this.relationToMeal, "unknown"))
+            }
+            is BloodPressureRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("systolic", this.systolic.toJSONObject())
+                obj.put("diastolic", this.diastolic.toJSONObject())
+                obj.put("bodyPosition", BloodPressureRecord.BODY_POSITION_INT_TO_STRING_MAP.getOrDefault(this.bodyPosition, "unknown"))
+                obj.put("measurementLocation", BloodPressureRecord.MEASUREMENT_LOCATION_INT_TO_STRING_MAP.getOrDefault(this.measurementLocation, "unknown"))
+            }
             is HeightRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
@@ -122,20 +148,6 @@ internal fun Record.toJSONObject(): JSONObject {
                 obj.put("endTime", this.endTime)
                 obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
                 obj.put("count", this.count)
-            }
-            is BloodGlucoseRecord -> {
-                obj.put("time", this.time)
-                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
-                obj.put("level", this.level.toJSONObject())
-                obj.put(
-                    "specimenSource",
-                    BloodGlucoseRecord.SPECIMEN_SOURCE_INT_TO_STRING_MAP.getOrDefault(this.specimenSource, "unknown")
-                )
-                obj.put("mealType", MealType.MEAL_TYPE_INT_TO_STRING_MAP.getOrDefault(this.mealType, "unknown"))
-                obj.put(
-                    "relationToMeal",
-                    BloodGlucoseRecord.RELATION_TO_MEAL_INT_TO_STRING_MAP.getOrDefault(this.relationToMeal, "unknown")
-                )
             }
             else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
         }
@@ -306,6 +318,23 @@ internal fun JSONObject.getPower(name: String): Power {
         "kilocaloriesPerDay" -> Power.kilocaloriesPerDay(value)
         "watts" -> Power.watts(value)
         else -> throw RuntimeException("Invalid Power unit: $unit")
+    }
+}
+
+internal fun Pressure.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("unit", "millimetersOfMercury") // TODO: support other units
+        obj.put("value", this.inMillimetersOfMercury)
+    }
+}
+
+internal fun JSONObject.getPressure(name: String): Pressure {
+    val obj = requireNotNull(this.getJSONObject(name))
+
+    val value = obj.getDouble("value")
+    return when (val unit = obj.getString("unit")) {
+        "millimetersOfMercury" -> Pressure.millimetersOfMercury(value)
+        else -> throw RuntimeException("Invalid Pressure unit: $unit")
     }
 }
 

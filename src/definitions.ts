@@ -77,6 +77,31 @@ export type Record =
       basalMetabolicRate: Power;
     }
   | {
+      type: 'BloodGlucose';
+      time: Date;
+      zoneOffset?: string;
+      level: BloodGlucose;
+      specimenSource:
+        | 'unknown'
+        | 'interstitial_fluid'
+        | 'capillary_blood'
+        | 'plasma'
+        | 'serum'
+        | 'tears'
+        | 'whole_blood';
+      mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack';
+      relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal';
+    }
+  | {
+      type: 'BloodPressure';
+      time: Date;
+      zoneOffset?: string;
+      systolic: Pressure;
+      diastolic: Pressure;
+      bodyPosition: 'unknown' | 'standing_up' | 'sitting_down' | 'lying_down' | 'reclining';
+      measurementLocation: 'unknown' | 'left_wrist' | 'right_wrist' | 'left_upper_arm' | 'right_upper_arm';
+    }
+  | {
       type: 'Height';
       time: Date;
       zoneOffset?: string;
@@ -95,22 +120,6 @@ export type Record =
       endTime: Date;
       endZoneOffset?: string;
       count: number;
-    }
-  | {
-      type: 'BloodGlucose';
-      time: Date;
-      zoneOffset?: string;
-      level: BloodGlucose;
-      specimenSource:
-        | 'unknown'
-        | 'interstitial_fluid'
-        | 'capillary_blood'
-        | 'plasma'
-        | 'serum'
-        | 'tears'
-        | 'whole_blood';
-      mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack';
-      relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal';
     };
 export type RecordMetadata = {
   id: string;
@@ -149,6 +158,10 @@ export type Temperature = {
 };
 export type Power = {
   unit: 'kilocaloriesPerDay' | 'watts';
+  value: number;
+};
+export type Pressure = {
+  unit: 'millimetersOfMercury';
   value: number;
 };
 export type Length = {
