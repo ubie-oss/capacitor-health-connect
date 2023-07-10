@@ -5,7 +5,7 @@ Android Health Connect integration for Capacitor
 ## Install
 
 ```bash
-npm install @ubie-inc/capacitor-health-connect
+npm install capacitor-health-connect
 npx cap sync
 ```
 
@@ -178,7 +178,32 @@ openHealthConnectSetting() => any
 
 #### Record
 
-<code>{ type: 'Height'; time: Date; zoneOffset?: string; height: <a href="#length">Length</a>; } | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; }</code>
+<code>{ type: 'ActiveCalories'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; energy: <a href="#energy">Energy</a>; } | { type: 'BasalBodyTemperature'; time: Date; zoneOffset?: string; temperature: <a href="#temperature">Temperature</a>; measurementLocation: | 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina'; } | { type: 'BasalMetabolicRate'; time: Date; zoneOffset?: string; basalMetabolicRate: <a href="#power">Power</a>; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; } | { type: 'BloodPressure'; time: Date; zoneOffset?: string; systolic: <a href="#pressure">Pressure</a>; diastolic: <a href="#pressure">Pressure</a>; bodyPosition: 'unknown' | 'standing_up' | 'sitting_down' | 'lying_down' | 'reclining'; measurementLocation: 'unknown' | 'left_wrist' | 'right_wrist' | 'left_upper_arm' | 'right_upper_arm'; } | { type: 'Height'; time: Date; zoneOffset?: string; height: <a href="#length">Length</a>; } | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; }</code>
+
+
+#### Energy
+
+<code>{ unit: 'calories' | 'kilocalories' | 'joules' | 'kilojoules'; value: number; }</code>
+
+
+#### Temperature
+
+<code>{ unit: 'celsius' | 'fahrenheit'; value: number; }</code>
+
+
+#### Power
+
+<code>{ unit: 'kilocaloriesPerDay' | 'watts'; value: number; }</code>
+
+
+#### BloodGlucose
+
+<code>{ unit: 'milligramsPerDeciliter' | 'millimolesPerLiter'; value: number; }</code>
+
+
+#### Pressure
+
+<code>{ unit: 'millimetersOfMercury'; value: number; }</code>
 
 
 #### Length
@@ -189,11 +214,6 @@ openHealthConnectSetting() => any
 #### Mass
 
 <code>{ unit: 'gram' | 'kilogram' | 'milligram' | 'microgram' | 'ounce' | 'pound'; value: number; }</code>
-
-
-#### BloodGlucose
-
-<code>{ unit: 'milligramsPerDeciliter' | 'millimolesPerLiter'; value: number; }</code>
 
 
 #### RecordType
