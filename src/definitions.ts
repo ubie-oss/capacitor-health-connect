@@ -45,6 +45,32 @@ type RecordBase = {
 type StoredRecord = RecordBase & Record;
 export type Record =
   | {
+      type: 'ActiveCalories';
+      startTime: Date;
+      startZoneOffset?: string;
+      endTime: Date;
+      endZoneOffset?: string;
+      energy: Energy;
+    }
+  | {
+      type: 'BasalBodyTemperature';
+      time: Date;
+      zoneOffset?: string;
+      temperature: Temperature;
+      measurementLocation:
+        | 'unknown'
+        | 'armpit'
+        | 'finger'
+        | 'forehead'
+        | 'mouth'
+        | 'rectum'
+        | 'temporal_artery'
+        | 'toe'
+        | 'ear'
+        | 'wrist'
+        | 'vagina';
+    }
+  | {
       type: 'Height';
       time: Date;
       zoneOffset?: string;
@@ -106,6 +132,15 @@ export type TimeRangeFilter =
       startTime: Date;
       endTime: Date;
     };
+
+export type Energy = {
+  unit: 'calories' | 'kilocalories' | 'joules' | 'kilojoules';
+  value: number;
+};
+export type Temperature = {
+  unit: 'celsius' | 'fahrenheit';
+  value: number;
+};
 export type Length = {
   unit: 'meter' | 'kilometer' | 'mile' | 'inch' | 'feet';
   value: number;
