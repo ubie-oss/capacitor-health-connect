@@ -71,6 +71,12 @@ export type Record =
         | 'vagina';
     }
   | {
+      type: 'BasalMetabolicRate';
+      time: Date;
+      zoneOffset?: string;
+      basalMetabolicRate: Power;
+    }
+  | {
       type: 'Height';
       time: Date;
       zoneOffset?: string;
@@ -139,6 +145,10 @@ export type Energy = {
 };
 export type Temperature = {
   unit: 'celsius' | 'fahrenheit';
+  value: number;
+};
+export type Power = {
+  unit: 'kilocaloriesPerDay' | 'watts';
   value: number;
 };
 export type Length = {

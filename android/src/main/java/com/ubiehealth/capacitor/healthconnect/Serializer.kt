@@ -44,6 +44,11 @@ internal fun JSONObject.toRecord(): Record {
             temperature = this.getTemperature("temperature"),
             measurementLocation = this.getBodyTemperatureMeasurementLocationInt("measurementLocation"),
         )
+        "BasalMetabolicRate" -> BasalMetabolicRateRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            basalMetabolicRate = this.getPower("basalMetabolicRate"),
+        )
         "Height" -> HeightRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
@@ -95,6 +100,11 @@ internal fun Record.toJSONObject(): JSONObject {
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
                 obj.put("temperature", this.temperature.toJSONObject())
                 obj.put("measurementLocation", this.measurementLocation.toBodyTemperatureMeasurementLocationString())
+            }
+            is BasalMetabolicRateRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("basalMetabolicRate", this.basalMetabolicRate.toJSONObject())
             }
             is HeightRecord -> {
                 obj.put("time", this.time)
@@ -279,6 +289,24 @@ internal fun Int.toBodyTemperatureMeasurementLocationString(): String {
 internal fun JSONObject.getBodyTemperatureMeasurementLocationInt(name: String): Int {
     val str = requireNotNull(this.getString(name))
     return MEASUREMENT_LOCATION_STRING_TO_INT_MAP.getOrDefault(str, BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_UNKNOWN)
+}
+
+internal fun Power.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("unit", "kilocaloriesPerDay") // TODO: support other units
+        obj.put("value", this.inKilocaloriesPerDay)
+    }
+}
+
+internal fun JSONObject.getPower(name: String): Power {
+    val obj = requireNotNull(this.getJSONObject(name))
+
+    val value = obj.getDouble("value")
+    return when (val unit = obj.getString("unit")) {
+        "kilocaloriesPerDay" -> Power.kilocaloriesPerDay(value)
+        "watts" -> Power.watts(value)
+        else -> throw RuntimeException("Invalid Power unit: $unit")
+    }
 }
 
 internal fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
