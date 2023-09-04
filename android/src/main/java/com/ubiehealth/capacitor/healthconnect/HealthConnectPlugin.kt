@@ -1,5 +1,6 @@
 package com.ubiehealth.capacitor.healthconnect
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -203,7 +204,11 @@ class HealthConnectPlugin : Plugin() {
 
     @ActivityCallback
     fun handleInstalled(call: PluginCall, result: ActivityResult) {
-        requestHealthPermissions(call)
+        if (result.resultCode == Activity.RESULT_OK) {
+            requestHealthPermissions(call)
+        } else {
+            call.errorCallback("canceled")
+        }
     }
 
     @ActivityCallback
