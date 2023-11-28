@@ -3,6 +3,7 @@ ext {
     androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.6.1'
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.1.5'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.5.1'
+    androidxCoreKTXVersion = project.hasProperty('androidxCoreKTXVersion') ? rootProject.ext.androidxCoreKTXVersion : '1.10.0'
 }
 
 buildscript {
@@ -59,7 +60,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
 
-    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "androidx.core:core-ktx:$androidxCoreKTXVersion"
     implementation 'androidx.activity:activity-ktx:1.6.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
