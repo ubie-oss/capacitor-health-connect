@@ -58,7 +58,7 @@ class HealthConnectPlugin : Plugin() {
 
     @PluginMethod
     fun checkAvailability(call: PluginCall) {
-        val availability = when (val status = HealthConnectClient.sdkStatus(this.context)) {
+        val availability = when (val status = HealthConnectClient.getSdkStatus(this.context)) {
             HealthConnectClient.SDK_AVAILABLE -> "Available"
             HealthConnectClient.SDK_UNAVAILABLE -> "NotSupported"
             HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> "NotInstalled"
@@ -171,7 +171,7 @@ class HealthConnectPlugin : Plugin() {
 
     @PluginMethod
     fun requestHealthPermissions(call: PluginCall) {
-        if (HealthConnectClient.sdkStatus(this.context) == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+        if (HealthConnectClient.getSdkStatus(this.context) == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setPackage("com.android.vending")
             intent.data = Uri.parse("market://details")
