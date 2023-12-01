@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
@@ -43,11 +44,6 @@ import java.lang.RuntimeException
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.Date
-
-/**
- * @link https://developer.android.com/reference/android/os/Build.VERSION_CODES#UPSIDE_DOWN_CAKE
- */
-const val UPSIDE_DOWN_CAKE = 10000
 
 @CapacitorPlugin(name = "HealthConnect")
 class HealthConnectPlugin : Plugin() {
@@ -179,6 +175,8 @@ class HealthConnectPlugin : Plugin() {
                     .appendQueryParameter("id", "com.google.android.apps.healthdata")
                     .appendQueryParameter("url", "healthconnect://onboarding")
                     .build()
+            intent.putExtra("overlay", true)
+            intent.putExtra("callerId", context.packageName)
             startActivityForResult(call, intent, "handleInstalled")
             return
         }
@@ -271,7 +269,7 @@ class HealthConnectPlugin : Plugin() {
 
     @PluginMethod
     fun openHealthConnectSetting(call: PluginCall) {
-        val action = if (Build.VERSION.SDK_INT < UPSIDE_DOWN_CAKE) HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS else "android.healthconnect.action.HEALTH_HOME_SETTINGS"
+        val action = HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS
         val intent = Intent(action)
         this.context.startActivity(intent)
 
