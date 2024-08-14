@@ -218,7 +218,7 @@ openHealthConnectSetting() => any
 
 #### RecordType
 
-<code>'Height' | 'Weight' | 'Steps' | '<a href="#bloodglucose">BloodGlucose</a>'</code>
+<code>'ActiveCalories' | 'BasalBodyTemperature' | 'BasalMetabolicRate' | '<a href="#bloodglucose">BloodGlucose</a>' | 'BloodPressure' | 'Height' | 'Weight' | 'Steps'</code>
 
 
 #### StoredRecord
