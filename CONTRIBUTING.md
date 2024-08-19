@@ -19,6 +19,11 @@ This guide provides instructions for contributing to this Capacitor plugin.
     brew install swiftlint
     ```
 
+### Resources
+
+1. [Health Connect RECORD types](https://developer.android.com/reference/kotlin/androidx/health/connect/client/records/Record)
+1. [RECORDS_TYPE_NAME_MAP](https://androidx.tech/artifacts/health.connect/connect-client/1.1.0-alpha05-source/androidx/health/connect/client/impl/converters/datatype/RecordsTypeNameMap.kt.html).
+
 ### Scripts
 
 #### `npm run build`
