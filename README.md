@@ -186,7 +186,7 @@ openHealthConnectSetting() => any
 
 #### Record
 
-<code>{ type: 'ActiveCaloriesBurned'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; energy: <a href="#energy">Energy</a>; } | { type: 'BasalBodyTemperature'; time: Date; zoneOffset?: string; temperature: <a href="#temperature">Temperature</a>; measurementLocation: | 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina'; } | { type: 'BasalMetabolicRate'; time: Date; zoneOffset?: string; basalMetabolicRate: <a href="#power">Power</a>; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; } | { type: 'BloodPressure'; time: Date; zoneOffset?: string; systolic: <a href="#pressure">Pressure</a>; diastolic: <a href="#pressure">Pressure</a>; bodyPosition: 'unknown' | 'standing_up' | 'sitting_down' | 'lying_down' | 'reclining'; measurementLocation: 'unknown' | 'left_wrist' | 'right_wrist' | 'left_upper_arm' | 'right_upper_arm'; } | { type: 'BodyFat'; time: Date; zoneOffset?: string; percentage: <a href="#percentage">Percentage</a>; } | { type: 'BodyTemperature'; time: Date; zoneOffset?: string; temperature: Temperature; measurementLocation: 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina'; } | { type: 'HeartRateSeries'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; samples: <a href="#heartratesample">HeartRateSample[]</a>; } | { type: 'Height'; time: Date; zoneOffset?: string; height: <a href="#length">Length</a>; } | { type: 'OxygenSaturation'; time: Date; zoneOffset?: string; percentage: <a href="#percentage">Percentage</a>; } | { type: 'RespiratoryRate'; time: Date; zoneOffset?: string; rate: number; } | { type: 'RestingHeartRate'; time: Date; zoneOffset?: string; beatsPerMinute: number; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; }</code>
+<code>{ type: 'ActiveCaloriesBurned'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; energy: <a href="#energy">Energy</a>; } | { type: 'BasalBodyTemperature'; time: Date; zoneOffset?: string; temperature: <a href="#temperature">Temperature</a>; measurementLocation: | 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina'; } | { type: 'BasalMetabolicRate'; time: Date; zoneOffset?: string; basalMetabolicRate: <a href="#power">Power</a>; } | { type: '<a href="#bloodglucose">BloodGlucose</a>'; time: Date; zoneOffset?: string; level: <a href="#bloodglucose">BloodGlucose</a>; specimenSource: | 'unknown' | 'interstitial_fluid' | 'capillary_blood' | 'plasma' | 'serum' | 'tears' | 'whole_blood'; mealType: 'unknown' | 'breakfast' | 'lunch' | 'dinner' | 'snack'; relationToMeal: 'unknown' | 'general' | 'fasting' | 'before_meal' | 'after_meal'; } | { type: 'BloodPressure'; time: Date; zoneOffset?: string; systolic: <a href="#pressure">Pressure</a>; diastolic: <a href="#pressure">Pressure</a>; bodyPosition: 'unknown' | 'standing_up' | 'sitting_down' | 'lying_down' | 'reclining'; measurementLocation: 'unknown' | 'left_wrist' | 'right_wrist' | 'left_upper_arm' | 'right_upper_arm'; } | { type: 'BodyFat'; time: Date; zoneOffset?: string; percentage: <a href="#percentage">Percentage</a>; } | { type: 'BodyTemperature'; time: Date; zoneOffset?: string; temperature: <a href="#temperature">Temperature</a>; measurementLocation: 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina'; } | { type: 'HeartRateSeries'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; samples: HeartRateSample[]; } | { type: 'Height'; time: Date; zoneOffset?: string; height: <a href="#length">Length</a>; } | { type: 'OxygenSaturation'; time: Date; zoneOffset?: string; percentage: <a href="#percentage">Percentage</a>; } | { type: 'RespiratoryRate'; time: Date; zoneOffset?: string; rate: number; } | { type: 'RestingHeartRate'; time: Date; zoneOffset?: string; beatsPerMinute: number; } | { type: 'Steps'; startTime: Date; startZoneOffset?: string; endTime: Date; endZoneOffset?: string; count: number; } | { type: 'Weight'; time: Date; zoneOffset?: string; weight: <a href="#mass">Mass</a>; }</code>
 
 
 #### Energy
@@ -194,19 +194,9 @@ openHealthConnectSetting() => any
 <code>{ unit: 'calories' | 'kilocalories' | 'joules' | 'kilojoules'; value: number; }</code>
 
 
-#### HeartRateSample
-
-<code>{ time: Date; beatsPerMinute: number; }</code>
-
-
 #### Temperature
 
 <code>{ unit: 'celsius' | 'fahrenheit'; value: number; }</code>
-
-
-#### Percentage
-
-<code>{ value: number; }</code>
 
 
 #### Power
@@ -222,6 +212,16 @@ openHealthConnectSetting() => any
 #### Pressure
 
 <code>{ unit: 'millimetersOfMercury'; value: number; }</code>
+
+
+#### Percentage
+
+<code>{ value: number; }</code>
+
+
+#### HeartRateSample
+
+<code>{ time: Date; beatsPerMinute: number; }</code>
 
 
 #### Length
