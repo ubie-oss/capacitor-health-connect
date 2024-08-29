@@ -31,7 +31,7 @@ internal fun <T> List<T>.toJSONArray(): JSONArray {
 
 internal fun JSONObject.toRecord(): Record {
     return when (val type = this.get("type")) {
-        "ActiveCalories" -> ActiveCaloriesBurnedRecord(
+        "ActiveCaloriesBurned" -> ActiveCaloriesBurnedRecord(
             startTime = this.getInstant("startTime"),
             startZoneOffset = this.getZoneOffsetOrNull("startZoneOffset"),
             endTime = this.getInstant("endTime"),
@@ -70,15 +70,43 @@ internal fun JSONObject.toRecord(): Record {
             measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_STRING_TO_INT_MAP
                 .getOrDefault(this.getString("measurementLocation"), BloodPressureRecord.MEASUREMENT_LOCATION_UNKNOWN),
         )
+        "BodyFat" -> BodyFatRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            percentage = this.getPercentage("percentage"),
+        )
+        "BodyTemperature" -> BodyTemperatureRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            temperature = this.getTemperature("temperature"),
+            measurementLocation = this.getBodyTemperatureMeasurementLocationInt("measurementLocation"),
+        )
+        "HeartRateSeries" -> HeartRateRecord(
+            startTime = this.getInstant("startTime"),
+            startZoneOffset = this.getZoneOffsetOrNull("startZoneOffset"),
+            endTime = this.getInstant("endTime"),
+            endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
+            samples = this.getHeartRateRecordSamplesList("samples")
+        )
         "Height" -> HeightRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
             height = this.getLength("height"),
         )
-        "Weight" -> WeightRecord(
+        "OxygenSaturation" -> OxygenSaturationRecord(
             time = this.getInstant("time"),
             zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
-            weight = this.getMass("weight"),
+            percentage = this.getPercentage("percentage"),
+        )
+        "RespiratoryRate" -> RespiratoryRateRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            rate = this.getDouble("rate"),
+        )
+        "RestingHeartRate" -> RestingHeartRateRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            beatsPerMinute = this.getLong("beatsPerMinute"),
         )
         "Steps" -> StepsRecord(
             startTime = this.getInstant("startTime"),
@@ -87,7 +115,11 @@ internal fun JSONObject.toRecord(): Record {
             endZoneOffset = this.getZoneOffsetOrNull("endZoneOffset"),
             count = this.getLong("count"),
         )
-
+        "Weight" -> WeightRecord(
+            time = this.getInstant("time"),
+            zoneOffset = this.getZoneOffsetOrNull("zoneOffset"),
+            weight = this.getMass("weight"),
+        )
         else -> throw IllegalArgumentException("Unexpected record type: $type")
     }
 }
@@ -132,15 +164,43 @@ internal fun Record.toJSONObject(): JSONObject {
                 obj.put("bodyPosition", BloodPressureRecord.BODY_POSITION_INT_TO_STRING_MAP.getOrDefault(this.bodyPosition, "unknown"))
                 obj.put("measurementLocation", BloodPressureRecord.MEASUREMENT_LOCATION_INT_TO_STRING_MAP.getOrDefault(this.measurementLocation, "unknown"))
             }
+            is BodyFatRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("percentage", this.percentage.toJSONObject())
+            }
+            is BodyTemperatureRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("temperature", this.temperature.toJSONObject())
+                obj.put("measurementLocation", this.measurementLocation.toBodyTemperatureMeasurementLocationString())
+            }
+            is HeartRateRecord -> {
+                obj.put("startTime", this.startTime)
+                obj.put("startZoneOffset", this.startZoneOffset?.toJSONValue())
+                obj.put("endTime", this.endTime)
+                obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
+                obj.put("samples", this.samples.toHeartRateRecordSamplesJSONArray())
+            }
             is HeightRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
                 obj.put("height", this.height.toJSONObject())
             }
-            is WeightRecord -> {
+            is OxygenSaturationRecord -> {
                 obj.put("time", this.time)
                 obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
-                obj.put("weight", this.weight.toJSONObject())
+                obj.put("percentage", this.percentage.toJSONObject())
+            }
+            is RespiratoryRateRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("rate", this.rate)
+            }
+            is RestingHeartRateRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("beatsPerMinute", this.beatsPerMinute)
             }
             is StepsRecord -> {
                 obj.put("startTime", this.startTime)
@@ -148,6 +208,11 @@ internal fun Record.toJSONObject(): JSONObject {
                 obj.put("endTime", this.endTime)
                 obj.put("endZoneOffset", this.endZoneOffset?.toJSONValue())
                 obj.put("count", this.count)
+            }
+            is WeightRecord -> {
+                obj.put("time", this.time)
+                obj.put("zoneOffset", this.zoneOffset?.toJSONValue())
+                obj.put("weight", this.weight.toJSONObject())
             }
             else -> throw IllegalArgumentException("Unexpected record class: $${this::class.qualifiedName}")
         }
@@ -350,4 +415,41 @@ internal fun JSONObject.getTimeRangeFilter(name: String): TimeRangeFilter {
 
 internal fun JSObject.getDataOriginFilter(name: String): Set<DataOrigin> {
     return this.optJSONArray(name)?.toList<String>()?.map { DataOrigin(it) }?.toSet() ?: emptySet()
+}
+
+internal fun HeartRateRecord.Sample.toJSONObject(): JSONObject {
+    return JSONObject().also { jsonObject ->
+        jsonObject.put("time", this.time)
+        jsonObject.put("beatsPerMinute", this.beatsPerMinute)
+    }
+}
+
+internal fun List<HeartRateRecord.Sample>.toHeartRateRecordSamplesJSONArray(): JSONArray {
+    return JSONArray().also { jsonArray ->
+        this.forEach { sample ->
+            jsonArray.put(sample.toJSONObject())
+        }
+    }
+}
+
+internal fun JSONObject.getHeartRateRecordSamplesList(name: String): List<HeartRateRecord.Sample> {
+    val jsonArray = this.getJSONArray(name)
+    return jsonArray.toList<JSONObject>().map { jsonObj ->
+        HeartRateRecord.Sample(
+            time = jsonObj.getInstant("time"),
+            beatsPerMinute = jsonObj.getLong("beatsPerMinute")
+        )
+    }
+}
+
+internal fun Percentage.toJSONObject(): JSONObject {
+    return JSONObject().also { obj ->
+        obj.put("value", this.value)
+    }
+}
+
+internal fun JSONObject.getPercentage(name: String): Percentage {
+    val obj = requireNotNull(this.getJSONObject(name))
+    val value = obj.getDouble("value")
+    return Percentage(value)
 }

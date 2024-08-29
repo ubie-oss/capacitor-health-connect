@@ -39,21 +39,27 @@ export interface HealthConnectPlugin {
 }
 export type HealthConnectAvailability = 'Available' | 'NotInstalled' | 'NotSupported';
 export type RecordType = 
-  | 'ActiveCalories'
+  | 'ActiveCaloriesBurned'
   | 'BasalBodyTemperature'
   | 'BasalMetabolicRate'
   | 'BloodGlucose'
   | 'BloodPressure'
+  | 'BodyFat'
+  | 'BodyTemperature'
+  | 'HeartRateSeries'
   | 'Height'
-  | 'Weight'
-  | 'Steps';
+  | 'OxygenSaturation'
+  | 'RespiratoryRate'
+  | 'RestingHeartRate'
+  | 'Steps'
+  | 'Weight';
 type RecordBase = {
   metadata: RecordMetadata;
 };
 type StoredRecord = RecordBase & Record;
 export type Record =
   | {
-      type: 'ActiveCalories';
+      type: 'ActiveCaloriesBurned';
       startTime: Date;
       startZoneOffset?: string;
       endTime: Date;
@@ -110,16 +116,49 @@ export type Record =
       measurementLocation: 'unknown' | 'left_wrist' | 'right_wrist' | 'left_upper_arm' | 'right_upper_arm';
     }
   | {
+      type: 'BodyFat';
+      time: Date;
+      zoneOffset?: string;
+      percentage: Percentage;
+    }
+  | {
+      type: 'BodyTemperature';
+      time: Date;
+      zoneOffset?: string;
+      temperature: Temperature;
+      measurementLocation: 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina';
+    }
+  | {
+      type: 'HeartRateSeries';
+      startTime: Date;
+      startZoneOffset?: string;
+      endTime: Date;
+      endZoneOffset?: string;
+      samples: HeartRateSample[];
+    }
+  | {
       type: 'Height';
       time: Date;
       zoneOffset?: string;
       height: Length;
     }
   | {
-      type: 'Weight';
+      type: 'OxygenSaturation';
       time: Date;
       zoneOffset?: string;
-      weight: Mass;
+      percentage: Percentage;
+    }
+  | {
+      type: 'RespiratoryRate';
+      time: Date;
+      zoneOffset?: string;
+      rate: number;
+    }
+  | {
+      type: 'RestingHeartRate';
+      time: Date;
+      zoneOffset?: string;
+      beatsPerMinute: number;
     }
   | {
       type: 'Steps';
@@ -128,6 +167,12 @@ export type Record =
       endTime: Date;
       endZoneOffset?: string;
       count: number;
+    }
+  | {
+      type: 'Weight';
+      time: Date;
+      zoneOffset?: string;
+      weight: Mass;
     };
 export type RecordMetadata = {
   id: string;
@@ -155,13 +200,19 @@ export type TimeRangeFilter =
       startTime: Date;
       endTime: Date;
     };
-
 export type Energy = {
   unit: 'calories' | 'kilocalories' | 'joules' | 'kilojoules';
   value: number;
 };
+export type HeartRateSample = {
+  time: Date;
+  beatsPerMinute: number;
+};
 export type Temperature = {
   unit: 'celsius' | 'fahrenheit';
+  value: number;
+};
+export type Percentage = {
   value: number;
 };
 export type Power = {
