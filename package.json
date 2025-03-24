@@ -1,6 +1,6 @@
 {
-  "name": "capacitor-health-connect",
-  "version": "0.7.0",
+"name": "@jaypatelll1/capacitor-health-connect",
+  "version": "1.0.0",
   "description": "Android Health Connect integration for Capacitor",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -11,15 +11,16 @@
     "android/build.gradle",
     "dist/"
   ],
-  "author": "Yuku Kotani",
+  "author": "Jay Patel",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ubie-oss/capacitor-health-connect.git"
+    "url": "git+https://github.com/jaypatelll1/capacitor-health-connect"
   },
   "bugs": {
-    "url": "https://github.com/ubie-oss/capacitor-health-connect/issues"
+    "url": "https://github.com/jaypatelll1/capacitor-health-connect/issues"
   },
+  "homepage": "https://github.com/jaypatelll1/capacitor-health-connect#readme",
   "keywords": [
     "capacitor",
     "plugin",

@@ -46,6 +46,7 @@ export type RecordType =
   | 'BloodPressure'
   | 'BodyFat'
   | 'BodyTemperature'
+  | 'Distance' 
   | 'HeartRateSeries'
   | 'Height'
   | 'OxygenSaturation'
@@ -127,6 +128,14 @@ export type Record =
       zoneOffset?: string;
       temperature: Temperature;
       measurementLocation: 'unknown' | 'armpit' | 'finger' | 'forehead' | 'mouth' | 'rectum' | 'temporal_artery' | 'toe' | 'ear' | 'wrist' | 'vagina';
+    }
+  | {
+      type: 'Distance';
+      startTime: Date;
+      startZoneOffset?: string;
+      endTime: Date;
+      endZoneOffset?: string;
+      distance: Length;
     }
   | {
       type: 'HeartRateSeries';
